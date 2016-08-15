@@ -37,6 +37,7 @@
     <maven.test.version>3.3.0</maven.test.version>
     <aether.version>1.0.2.v20150114</aether.version>
     <jlibs.version>2.2.1</jlibs.version>
+    <fast.classpath.scanner.version>1.99.0</fast.classpath.scanner.version>
   </properties>
 
   <dependencyManagement>
@@ -128,7 +129,7 @@
       <dependency>
         <groupId>io.github.lukehutch</groupId>
         <artifactId>fast-classpath-scanner</artifactId>
-        <version>LATEST</version>
+        <version>${fast.classpath.scanner.version}</version>
       </dependency>
       <dependency>
         <groupId>io.fares.design.builder</groupId>
