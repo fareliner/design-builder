@@ -16,3 +16,4 @@ bower_components
 dependency-reduced-pom.xml
 design-catalog.xml
 release.properties
+*.releaseBackup

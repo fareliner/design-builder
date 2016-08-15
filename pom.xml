@@ -19,6 +19,14 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <groupId>io.fares.design.builder</groupId>
+  <artifactId>design-builder</artifactId>
+  <version>0.0.9-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Design Builder</name>
+  <description>A set of utilities and examples to help design and generate a modular data model using XML schema language.</description>
+  <url>https://github.com/fareliner/design-builder</url>
 
   <licenses>
     <license>
@@ -38,23 +46,11 @@
     </developer>
   </developers>
 
-  <groupId>io.fares.design.builder</groupId>
-  <artifactId>design-builder</artifactId>
-  <version>0.0.9-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-  <name>Design Builder</name>
-
-  <properties>
-    <!-- unify the encoding for all the modules -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
-
   <scm>
     <connection>scm:git:https://github.com/fareliner/design-builder.git</connection>
     <developerConnection>scm:git:https://github.com/fareliner/design-builder.git</developerConnection>
     <tag>HEAD</tag>
+    <url>https://github.com/fareliner/design-builder</url>
   </scm>
 
   <distributionManagement>
@@ -73,6 +69,12 @@
     <module>core</module>
     <module>maven-plugin</module>
   </modules>
+
+  <properties>
+    <!-- unify the encoding for all the modules -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
 
   <build>
     <plugins>
