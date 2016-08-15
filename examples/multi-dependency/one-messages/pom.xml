@@ -1,0 +1,135 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.fares.design.builder</groupId>
+    <artifactId>design-builder-example-multi-dependency-parent-model</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
+    <relativePath>../parent-model/pom.xml</relativePath>
+  </parent>
+  <artifactId>design-builder-example-multi-dependency-one-messages</artifactId>
+  <name>Examples :: Multi Dependency :: One Messages</name>
+  <packaging>jar</packaging>
+
+  <properties>
+    <model.name>one-messages</model.name>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>design-builder-example-multi-dependency-one</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- make sure the jaxb and jaxws technology is installed properly -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+      </plugin>
+      <!-- build parent will generated the service release version and ensure
+        we package with classifier -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+      </plugin>
+      <!-- design builder -->
+      <plugin>
+        <groupId>io.fares.maven.plugins</groupId>
+        <artifactId>design-builder-maven-plugin</artifactId>
+      </plugin>
+      <!-- xjc compiler for model -->
+      <plugin>
+        <groupId>org.jvnet.jaxb2.maven2</groupId>
+        <artifactId>maven-jaxb2-plugin</artifactId>
+      </plugin>
+      <!-- augment episode to be a uniquely named episode file in the classpath -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+      </plugin>
+      <!-- generate OSGi information -->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.jvnet.jaxb2.maven2</groupId>
+          <artifactId>maven-jaxb2-plugin</artifactId>
+          <inherited>true</inherited>
+          <executions>
+            <execution>
+              <id>generate-model</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+              <configuration>
+                <catalogs>
+                  <catalog>
+                    <dependencyResource>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>design-builder-example-multi-dependency-common</artifactId>
+                      <resource>META-INF/common/catalog.xml</resource>
+                    </dependencyResource>
+                  </catalog>
+                  <catalog>
+                    <dependencyResource>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>design-builder-example-multi-dependency-one</artifactId>
+                      <resource>META-INF/one/catalog.xml</resource>
+                    </dependencyResource>
+                  </catalog>
+                </catalogs>
+                <episodes>
+                  <episode>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>design-builder-example-multi-dependency-common</artifactId>
+                  </episode>
+                  <episode>
+                    <groupId>${project.groupId}</groupId>
+                    <artifactId>design-builder-example-multi-dependency-one</artifactId>
+                  </episode>
+                </episodes>
+                <schemaDirectory>${project.basedir}/src/main/resources/${model.name}</schemaDirectory>
+                <schemaIncludes>
+                  <include>**/*.xsd</include>
+                </schemaIncludes>
+                <bindingDirectory>${basedir}/src/main/resources</bindingDirectory>
+                <bindingIncludes>
+                  <include>**/*.xjb</include>
+                </bindingIncludes>
+                <episode>true</episode>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

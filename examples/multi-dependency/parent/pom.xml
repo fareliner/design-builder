@@ -1,0 +1,253 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.fares.design.builder</groupId>
+    <artifactId>design-builder-example-multi-dependency</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
+  </parent>
+  <artifactId>design-builder-example-multi-dependency-parent</artifactId>
+  <name>Examples :: Multi Dependency :: BOM</name>
+  <packaging>pom</packaging>
+
+  <properties>
+    <slf4j.version>1.7.21</slf4j.version>
+    <!-- xml base utils -->
+    <xerces.version>2.11.0</xerces.version>
+    <xmlresolver.version>1.2</xmlresolver.version>
+    <xalan.version>2.7.2</xalan.version>
+    <commons.lang3.version>3.4</commons.lang3.version>
+    <cxf.version>3.1.7</cxf.version>
+    <!-- xml binding -->
+    <jaxb.api.version>2.2.11</jaxb.api.version>
+    <jaxb.version>2.2.11</jaxb.version>
+    <jaxws.version>2.2.10</jaxws.version>
+    <!-- jaxb plugins -->
+    <jaxb2.basics.version>0.11.1</jaxb2.basics.version>
+    <jaxb2.annotate.version>1.0.2</jaxb2.annotate.version>
+    <jaxb2.namespace.version>1.1</jaxb2.namespace.version>
+    <jaxb2.fluent.version>3.0</jaxb2.fluent.version>
+    <jaxb2.commons.lang.version>2.4</jaxb2.commons.lang.version>
+    <jaxb.xew.version>1.7</jaxb.xew.version>
+    <cxf-xjc-utils.version>3.0.5</cxf-xjc-utils.version>
+    <!-- osgi defaults -->
+    <osgi.resources></osgi.resources>
+    <osgi.exports></osgi.exports>
+    <osgi.imports></osgi.imports>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <!-- jaxb plugins -->
+      <dependency>
+        <groupId>org.jvnet.jaxb2_commons</groupId>
+        <artifactId>jaxb2-basics</artifactId>
+        <version>${jaxb2.basics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.jaxb2_commons</groupId>
+        <artifactId>jaxb2-basics-annotate</artifactId>
+        <version>${jaxb2.annotate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.jaxb2_commons</groupId>
+        <artifactId>jaxb2-namespace-prefix</artifactId>
+        <version>${jaxb2.namespace.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.jaxb2_commons</groupId>
+        <artifactId>jaxb2-fluent-api</artifactId>
+        <version>${jaxb2.fluent.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.jaxb2_commons</groupId>
+        <artifactId>jaxb2-commons-lang</artifactId>
+        <version>${jaxb2.commons.lang.version}</version>
+      </dependency>
+      <!-- the jaxb commons one does not work so need to keep cxf version -->
+      <dependency>
+        <groupId>org.apache.cxf.xjcplugins</groupId>
+        <artifactId>cxf-xjc-dv</artifactId>
+        <version>${cxf-xjc-utils.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.jaxb-xew-plugin</groupId>
+        <artifactId>jaxb-xew-plugin</artifactId>
+        <version>${jaxb.xew.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons.lang3.version}</version>
+      </dependency>
+      <!-- jaxws -->
+      <!-- override jaxb -->
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-core</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind</groupId>
+        <artifactId>jaxb-impl</artifactId>
+        <version>${jaxb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-rt</artifactId>
+        <version>${jaxws.version}</version>
+      </dependency>
+
+      <!-- self -->
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>design-builder-example-multi-dependency-common</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>design-builder-example-multi-dependency-one</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>design-builder-example-multi-dependency-one-messages</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>design-builder-example-multi-dependency-one-service-a</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- setup compiler -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.5.1</version>
+          <configuration>
+            <source>${maven.compile.source}</source>
+            <target>${maven.compile.target}</target>
+            <compilerArguments>
+              <endorseddirs>${project.build.directory}/endorsed</endorseddirs>
+            </compilerArguments>
+          </configuration>
+        </plugin>
+        <!-- make sure the jaxb and jaxws technology is installed properly -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.10</version>
+        </plugin>
+        <!-- manage model/wsdl files -->
+        <plugin>
+          <groupId>io.fares.maven.plugins</groupId>
+          <artifactId>design-builder-maven-plugin</artifactId>
+          <version>${project.version}</version>
+        </plugin>
+        <!-- xjc compiler for model -->
+        <plugin>
+          <groupId>org.jvnet.jaxb2.maven2</groupId>
+          <artifactId>maven-jaxb2-plugin</artifactId>
+          <version>0.13.1</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-api</artifactId>
+              <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-simple</artifactId>
+              <version>${slf4j.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <!-- process episode files -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>xml-maven-plugin</artifactId>
+          <version>1.0.1</version>
+        </plugin>
+        <!-- make sure source folders are added to help out eclipse -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.12</version>
+        </plugin>
+        <!-- generate OSGi information -->
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>3.2.0</version>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+              <Bundle-Vendor>fares.io</Bundle-Vendor>
+              <Include-Resource>${osgi.resources}</Include-Resource>
+              <Export-Package>${osgi.exports}</Export-Package>
+              <Import-Package>${osgi.imports}</Import-Package>
+            </instructions>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

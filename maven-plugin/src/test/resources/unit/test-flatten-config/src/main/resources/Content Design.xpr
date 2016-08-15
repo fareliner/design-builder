@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="14.2">
+    <meta>
+        <filters directoryPatterns="" filePatterns="" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options>
+            <serialized version="14.2" xml:space="preserve">
+                <map>
+                    <entry>
+                        <String>catalogs.v5</String>
+                        <String-array>
+                            <String>${pdu}/../content/jar-1-content/catalog.xml</String>
+                            <String>${pdu}/../content/jar-2-content/catalog.xml</String>
+                        </String-array>
+                    </entry>
+                    <entry>
+                        <String>key.xml.catalog.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>process.namespaces.through.uri.mapping.for.xml.schema</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                </map>
+            </serialized>
+        </options>
+    </meta>
+    <projectTree name="Content%20Design.xpr">
+        <folder name="Model Files">
+            <folder path="../content/jar-1-content/jar-1/"/>
+            <folder path="../content/jar-2-content/jar-2/"/>
+            <folder path="../wsdl/"/>
+        </folder>
+    </projectTree>
+</project>

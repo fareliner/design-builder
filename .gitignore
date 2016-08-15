@@ -1,0 +1,17 @@
+target
+.project
+.classpath
+.settings/
+.metadata
+.checkstyle
+.springBeans
+.externalToolBuilders
+.idea/
+*.iml
+*.log
+.DS_Store
+*.ldb
+*.url
+bower_components
+dependency-reduced-pom.xml
+design-catalog.xml

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="18.0">
+    <meta>
+        <filters directoryPatterns="" filePatterns="Design.xpr" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options>
+            <serialized version="18.0" xml:space="preserve">
+                <serializableOrderedMap>
+                    <entry>
+                        <String>catalogs.v5</String>
+                        <String-array>
+                            <String>${pdu}/common/design-catalog.xml</String>
+                            <String>${pdu}/one/design-catalog.xml</String>
+                            <String>${pdu}/one-messages/design-catalog.xml</String>
+                        </String-array>
+                    </entry>
+                    <entry>
+                        <String>enable.project.master.files.support</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                    <entry>
+                        <String>key.xml.catalog.option.pane</String>
+                        <Boolean>true</Boolean>
+                    </entry>
+                </serializableOrderedMap>
+            </serialized>
+        </options>
+    </meta>
+    <projectTree name="Design.xpr">
+        <folder masterFiles="true" name="Master Files">
+            <file name="common/src/main/resources/common/CommonTypes.xsd"/>
+            <file name="one/src/main/resources/one/Customer.xsd"/>
+            <file name="one-messages/src/main/resources/one-messages/CustomerInterface.xsd"/>
+            <file name="service-a/src/main/resources/service/ServiceA.wsdl"/>
+        </folder>
+        <folder path="common/src/main/resources/common/"/>
+        <folder path="one/src/main/resources/one/"/>
+        <folder path="one-messages/src/main/resources/one-messages/"/>
+        <folder path="service-a/src/main/resources/service/"/>
+        <folder path="."/>
+    </projectTree>
+</project>

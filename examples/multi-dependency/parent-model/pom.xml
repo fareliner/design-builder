@@ -1,0 +1,220 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.fares.design.builder</groupId>
+    <artifactId>design-builder-example-multi-dependency-parent</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
+  </parent>
+  <artifactId>design-builder-example-multi-dependency-parent-model</artifactId>
+  <name>Examples :: Multi Dependency :: BOM Model</name>
+  <packaging>pom</packaging>
+
+  <properties>
+    <osgi.resources>META-INF=target/classes/META-INF</osgi.resources>
+  </properties>
+
+  <build>
+
+    <!-- limit output to the jar to schema files and properties, all others
+         such as catalog and episode files will be generated -->
+    <resources>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/META-INF</targetPath>
+        <includes>
+          <include>${model.name}/*.xsd</include>
+          <include>${model.name}/**/*.xsd</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}</targetPath>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <pluginManagement>
+      <plugins>
+        <!-- manage model files -->
+        <plugin>
+          <groupId>io.fares.maven.plugins</groupId>
+          <artifactId>design-builder-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <!-- this execution will create a catalog.xml file for design time tool support -->
+              <id>design-catalog</id>
+              <phase>validate</phase>
+              <goals>
+                <goal>catalog</goal>
+              </goals>
+              <configuration>
+                <targetCatalogFile>${project.basedir}/design-catalog.xml</targetCatalogFile>
+                <systemIdPathOffset>1</systemIdPathOffset>
+                <includes>
+                  <include>src/**/*.xsd</include>
+                </includes>
+                <verbose>true</verbose>
+              </configuration>
+            </execution>
+            <execution>
+              <!-- this execution will ensure a catalog.xml file is packaged with the release bundle -->
+              <id>model-catalog</id>
+              <phase>process-resources</phase>
+              <goals>
+                <goal>catalog</goal>
+              </goals>
+              <configuration>
+                <sourceDirectory>${project.build.outputDirectory}/META-INF</sourceDirectory>
+                <targetCatalogFile>${project.build.outputDirectory}/META-INF/${model.name}/catalog.xml
+                </targetCatalogFile>
+                <systemIdPathOffset>1</systemIdPathOffset>
+                <includes>
+                  <include>**/*.xsd</include>
+                </includes>
+                <verbose>true</verbose>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <!-- xjc compiler for model -->
+        <plugin>
+          <groupId>org.jvnet.jaxb2.maven2</groupId>
+          <artifactId>maven-jaxb2-plugin</artifactId>
+          <configuration>
+            <plugins>
+              <plugin>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-basics</artifactId>
+              </plugin>
+              <plugin>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-basics-annotate</artifactId>
+              </plugin>
+              <plugin>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-namespace-prefix</artifactId>
+              </plugin>
+              <plugin>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-fluent-api</artifactId>
+              </plugin>
+              <plugin>
+                <groupId>org.jvnet.jaxb2_commons</groupId>
+                <artifactId>jaxb2-commons-lang</artifactId>
+              </plugin>
+              <!-- the jaxb commons one does not work so need to keep cxf version -->
+              <plugin>
+                <groupId>org.apache.cxf.xjcplugins</groupId>
+                <artifactId>cxf-xjc-dv</artifactId>
+              </plugin>
+              <plugin>
+                <groupId>com.github.jaxb-xew-plugin</groupId>
+                <artifactId>jaxb-xew-plugin</artifactId>
+              </plugin>
+            </plugins>
+            <extension>true</extension>
+            <verbose>true</verbose>
+            <debug>false</debug>
+            <strict>false</strict>
+            <args>
+              <arg>-Xdv</arg>
+              <arg>-Xannotate</arg>
+              <arg>-Xxew</arg>
+              <arg>-Xxew:control ${project.basedir}/src/main/resources/control.xew</arg>
+              <arg>-Xxew:instantiate lazy</arg>
+              <arg>-Xinheritance</arg>
+              <arg>-Xfluent-api</arg>
+              <arg>-Xnamespace-prefix</arg>
+              <arg>-Xcommons-lang</arg>
+              <arg>-Xcommons-lang:ToStringStyle=SHORT_PREFIX_STYLE</arg>
+              <!--does not work with xew what a shame <arg>-Xjaxbindex</arg> -->
+            </args>
+          </configuration>
+        </plugin>
+        <!-- process episode files -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>xml-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>process-sources</phase>
+              <goals>
+                <goal>transform</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <transformationSets>
+              <transformationSet>
+                <!-- We will have to copy the generated episode to a unique name cause the CXF
+                     codegen has no ability to look for multiple of the same binding files in
+                     jar file META-INF/sun-jaxb.episode -->
+                <outputDir>${project.build.outputDirectory}/META-INF</outputDir>
+                <dir>${project.build.directory}/generated-sources/xjc/META-INF</dir>
+                <includes>
+                  <include>**/*.episode</include>
+                </includes>
+                <stylesheet>/META-INF/post-process-episode.xsl</stylesheet>
+                <fileMappers>
+                  <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                    <pattern>^.*(\.episode)$</pattern>
+                    <replacement>${model.name}$1</replacement>
+                  </fileMapper>
+                </fileMappers>
+              </transformationSet>
+            </transformationSets>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>design-builder-episode-transformer</artifactId>
+              <version>${project.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <!-- make sure source folders are added to help out eclipse -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>add-xjc-sources</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>add-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>${project.build.directory}/generated-sources/xjc</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

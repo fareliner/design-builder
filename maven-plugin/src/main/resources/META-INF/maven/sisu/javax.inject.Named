@@ -1,0 +1,4 @@
+io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyResolver
+io.fares.maven.plugins.design.builder.flattener.ArtifactDepdenencyResolver
+io.fares.maven.plugins.design.builder.scanner.CatalogFileScannerFactory
+io.fares.maven.plugins.design.builder.MavenCatalogResolverFactory
