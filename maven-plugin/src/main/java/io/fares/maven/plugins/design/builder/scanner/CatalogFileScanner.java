@@ -155,21 +155,22 @@ public class CatalogFileScanner {
         // 3. also add all plugin catalog resources
         cp.addAll(getCatalogUrls());
 
-
-        boolean first = false;
         StringBuilder classpath = new StringBuilder();
+
         for (URL el : cp) {
-            if (!first) {
-                classpath.append(File.pathSeparatorChar);
-            }
-            first = false;
+            classpath.append(File.pathSeparatorChar);
             classpath.append(el.toExternalForm());
         }
 
         final List<URL> catalogFiles = new LinkedList<>();
 
+        if (log.isInfoEnabled()) {
+            log.info("Scanner Classpath:" + '\n' + classpath.toString());
+        }
 
-        log.warn("Classpath Scanner:" + '\n' + classpath.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("Scanner uses catalogFilter: {}", catalogFilter);
+        }
 
         FastClasspathScanner scanner = new FastClasspathScanner()
                 .overrideClasspath(classpath.toString())
@@ -177,6 +178,11 @@ public class CatalogFileScanner {
 
                     @Override
                     public void processMatch(File parent, String file, InputStream inputStream, long lengthBytes) throws IOException {
+
+                        if (log.isDebugEnabled()) {
+                            log.debug(" :: found catalog file: {}", file);
+                        }
+
                         URL resource = null;
                         if (parent.exists() && parent.isDirectory()) {
                             File catFile = new File(parent, file);
@@ -184,7 +190,11 @@ public class CatalogFileScanner {
                         } else {
                             resource = new URL(format("jar:{0}!/{1}", parent.toURI().toURL().toExternalForm(), file));
                         }
-                        log.debug(" :: add {}", resource.toExternalForm());
+
+                        if (log.isDebugEnabled()) {
+                            log.debug(" :: add catalog resource: {}", resource.toExternalForm());
+                        }
+
                         catalogFiles.add(resource);
                     }
                 });
