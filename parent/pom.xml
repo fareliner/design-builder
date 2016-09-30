@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.fares.design.builder</groupId>
     <artifactId>design-builder</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.12-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>design-builder-parent</artifactId>
