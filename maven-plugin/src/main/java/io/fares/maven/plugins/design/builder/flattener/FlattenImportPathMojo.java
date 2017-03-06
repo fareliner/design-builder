@@ -246,8 +246,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
                 // scan the source directory for any configured (xsd) files
                 SimpleSourceInclusionScanner scanner = getSourceInclusionScanner();
                 // FIXME get resources from all URLs listed in resources
-                // attribute -
-                // just do a loop in the scanner
+                // attribute - just do a loop in the scanner
                 Set<File> files = scanner.getIncludedSources(sourceDirectory);
                 for (File file : files) {
                     artifacts.add(file.toURI().toURL());
@@ -272,8 +271,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
             for (URL targetFile : artifacts) {
                 try {
                     if (getLog().isDebugEnabled() || verbose)
-                        getLog().info(
-                                "Flatten file: " + targetFile.toExternalForm());
+                        getLog().info("Flatten file: " + targetFile.toExternalForm());
                     // FIXME do a proper URI check
                     InputSource source = new InputSource(
                             targetFile.toExternalForm());
