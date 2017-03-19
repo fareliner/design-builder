@@ -58,9 +58,17 @@
                 <resource>catalog.xml</resource>
               </dependencyResource>
             </catalog>
-            <!-- also options <catalog> <url>jar:file:/C:/Users/bertramn/.m2/repository/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar!/catalog.xml</url>
-              </catalog> <catalog> <url>file:/C:/dev/workspaces/ndc/build-tools/design-model-builder-plugin/src/test/resources/unit/test-dependency-resolver-config/src/main/content/jar-1-content/catalog.xml</url>
-              </catalog> -->
+            <!-- also options -->
+            <!--
+            <catalog>
+              <url>jar:file:/home/fred/.m2/repository/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar!/catalog.xml</url>
+            </catalog>
+            <catalog>
+              <url>
+                file:///C:/Users/fred/build-tools/design-builder-maven-plugin/src/test/resources/unit/test-dependency-resolver-config/src/main/content/jar-1-content/catalog.xml
+              </url>
+            </catalog>
+            -->
             <catalog>
               <dependencyResource>
                 <groupId>io.fares.maven.plugins.test.unit</groupId>

@@ -30,7 +30,7 @@
     <plugins>
       <plugin>
         <groupId>io.fares.maven.plugins</groupId>
-        <artifactId>design-model-builder-plugin</artifactId>
+        <artifactId>design-builder-maven-plugin</artifactId>
         <configuration>
           <includes>
             <include>**/*.xsd</include>
