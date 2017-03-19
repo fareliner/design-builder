@@ -46,176 +46,178 @@ import io.fares.maven.plugins.utils.CollectionUtils;
 
 public class CatalogFileScanner {
 
-    Logger log = LoggerFactory.getLogger(CatalogFileScanner.class);
+  Logger log = LoggerFactory.getLogger(CatalogFileScanner.class);
 
-    private List<String> compileClasspathElements;
+  private List<String> compileClasspathElements;
 
-    private ResourceEntryDependencyResolver resourceEntryResolver;
+  private ResourceEntryDependencyResolver resourceEntryResolver;
 
-    private RepositorySystemSession repositorySystemSession;
+  private RepositorySystemSession repositorySystemSession;
 
-    private List<RemoteRepository> remoteRepositories;
+  private List<RemoteRepository> remoteRepositories;
 
-    private ResourceEntry[] catalogs;
+  private ResourceEntry[] catalogs;
 
-    private List<Resource> resources;
+  private List<Resource> resources;
 
-    private File sourceDirectory;
+  private File sourceDirectory;
 
-    private Set<String> includes;
+  private Set<String> includes;
 
-    private Set<String> excludes;
+  private Set<String> excludes;
 
 
-    public List<String> getCompileClasspathElements() {
-        return compileClasspathElements;
+  public List<String> getCompileClasspathElements() {
+    return compileClasspathElements;
+  }
+
+  public void setCompileClasspathElements(List<String> compileClasspathElements) {
+    this.compileClasspathElements = compileClasspathElements;
+  }
+
+  public RepositorySystemSession getRepositorySystemSession() {
+    return repositorySystemSession;
+  }
+
+  public void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
+    this.repositorySystemSession = repositorySystemSession;
+  }
+
+  public List<RemoteRepository> getRemoteRepositories() {
+    return remoteRepositories;
+  }
+
+  public void setRemoteRepositories(List<RemoteRepository> remoteRepositories) {
+    this.remoteRepositories = remoteRepositories;
+  }
+
+  public ResourceEntryDependencyResolver getResourceEntryResolver() {
+    return resourceEntryResolver;
+  }
+
+  public void setResourceEntryResolver(ResourceEntryDependencyResolver resourceEntryResolver) {
+    this.resourceEntryResolver = resourceEntryResolver;
+  }
+
+  public List<Resource> getResources() {
+    return resources;
+  }
+
+  public void setResources(List<Resource> resources) {
+    this.resources = resources;
+  }
+
+  public ResourceEntry[] getCatalogs() {
+    return catalogs;
+  }
+
+  public void setCatalogs(ResourceEntry[] catalogs) {
+    this.catalogs = catalogs;
+  }
+
+  public File getSourceDirectory() {
+    return sourceDirectory;
+  }
+
+  public void setSourceDirectory(File sourceDirectory) {
+    this.sourceDirectory = sourceDirectory;
+  }
+
+  public Set<String> getIncludes() {
+    return includes;
+  }
+
+  public void setIncludes(Set<String> includes) {
+    this.includes = includes;
+  }
+
+  public Set<String> getExcludes() {
+    return excludes;
+  }
+
+  public void setExcludes(Set<String> excludes) {
+    this.excludes = excludes;
+  }
+
+  public List<URL> scan(String catalogFilter) throws IOException, ArtifactResolutionException, DependencyResolutionRequiredException {
+
+    Set<URL> cp = new HashSet();
+    // 1. add all classpath resources
+    cp.addAll(getClassPathElementURLs(compileClasspathElements));
+
+    // 2. add all resource folders
+    // TODO filter proper excludes
+    for (Resource resource : resources) {
+      File resourceDir = new File(resource.getDirectory());
+      cp.add(resourceDir.toURI().toURL());
     }
 
-    public void setCompileClasspathElements(List<String> compileClasspathElements) {
-        this.compileClasspathElements = compileClasspathElements;
+    // 3. also add all plugin catalog resources
+    cp.addAll(getCatalogUrls());
+
+    StringBuilder classpath = new StringBuilder();
+
+    for (URL el : cp) {
+      classpath.append(File.pathSeparatorChar);
+      classpath.append(el.toExternalForm());
     }
 
-    public RepositorySystemSession getRepositorySystemSession() {
-        return repositorySystemSession;
+    final List<URL> catalogFiles = new LinkedList<>();
+
+    if (log.isInfoEnabled()) {
+      log.info("Scanner Classpath:" + '\n' + classpath.toString());
     }
 
-    public void setRepositorySystemSession(RepositorySystemSession repositorySystemSession) {
-        this.repositorySystemSession = repositorySystemSession;
+    if (log.isDebugEnabled()) {
+      log.debug("Scanner uses catalogFilter: {}", catalogFilter);
     }
 
-    public List<RemoteRepository> getRemoteRepositories() {
-        return remoteRepositories;
-    }
+    FastClasspathScanner scanner = new FastClasspathScanner()
+      .overrideClasspath(classpath.toString())
+      .matchFilenamePattern(catalogFilter, new FileMatchProcessorWithContext() {
 
-    public void setRemoteRepositories(List<RemoteRepository> remoteRepositories) {
-        this.remoteRepositories = remoteRepositories;
-    }
+        @Override
+        public void processMatch(File parent, String file, InputStream inputStream, long lengthBytes) throws IOException {
 
-    public ResourceEntryDependencyResolver getResourceEntryResolver() {
-        return resourceEntryResolver;
-    }
+          if (log.isDebugEnabled()) {
+            log.debug(" :: found catalog file: {}", file);
+          }
 
-    public void setResourceEntryResolver(ResourceEntryDependencyResolver resourceEntryResolver) {
-        this.resourceEntryResolver = resourceEntryResolver;
-    }
+          URL resource = null;
+          if (parent.exists() && parent.isDirectory()) {
+            File catFile = new File(parent, file);
+            resource = catFile.toURI().toURL();
+          } else {
+            resource = new URL(format("jar:{0}!/{1}", parent.toURI().toURL().toExternalForm(), file));
+          }
 
-    public List<Resource> getResources() {
-        return resources;
-    }
+          if (log.isDebugEnabled()) {
+            log.debug(" :: add catalog resource: {}", resource.toExternalForm());
+          }
 
-    public void setResources(List<Resource> resources) {
-        this.resources = resources;
-    }
+          catalogFiles.add(resource);
 
-    public ResourceEntry[] getCatalogs() {
-        return catalogs;
-    }
-
-    public void setCatalogs(ResourceEntry[] catalogs) {
-        this.catalogs = catalogs;
-    }
-
-    public File getSourceDirectory() {
-        return sourceDirectory;
-    }
-
-    public void setSourceDirectory(File sourceDirectory) {
-        this.sourceDirectory = sourceDirectory;
-    }
-
-    public Set<String> getIncludes() {
-        return includes;
-    }
-
-    public void setIncludes(Set<String> includes) {
-        this.includes = includes;
-    }
-
-    public Set<String> getExcludes() {
-        return excludes;
-    }
-
-    public void setExcludes(Set<String> excludes) {
-        this.excludes = excludes;
-    }
-
-    public List<URL> scan(String catalogFilter) throws IOException, ArtifactResolutionException, DependencyResolutionRequiredException {
-
-        Set<URL> cp = new HashSet();
-        // 1. add all classpath resources
-        cp.addAll(getClassPathElementURLs(compileClasspathElements));
-
-        // 2. add all resource folders
-        // TODO filter proper excludes
-        for (Resource resource : resources) {
-            File resourceDir = new File(resource.getDirectory());
-            cp.add(resourceDir.toURI().toURL());
         }
-
-        // 3. also add all plugin catalog resources
-        cp.addAll(getCatalogUrls());
-
-        StringBuilder classpath = new StringBuilder();
-
-        for (URL el : cp) {
-            classpath.append(File.pathSeparatorChar);
-            classpath.append(el.toExternalForm());
-        }
-
-        final List<URL> catalogFiles = new LinkedList<>();
-
-        if (log.isInfoEnabled()) {
-            log.info("Scanner Classpath:" + '\n' + classpath.toString());
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Scanner uses catalogFilter: {}", catalogFilter);
-        }
-
-        FastClasspathScanner scanner = new FastClasspathScanner()
-                .overrideClasspath(classpath.toString())
-                .matchFilenamePattern(catalogFilter, new FileMatchProcessorWithContext() {
-
-                    @Override
-                    public void processMatch(File parent, String file, InputStream inputStream, long lengthBytes) throws IOException {
-
-                        if (log.isDebugEnabled()) {
-                            log.debug(" :: found catalog file: {}", file);
-                        }
-
-                        URL resource = null;
-                        if (parent.exists() && parent.isDirectory()) {
-                            File catFile = new File(parent, file);
-                            resource = catFile.toURI().toURL();
-                        } else {
-                            resource = new URL(format("jar:{0}!/{1}", parent.toURI().toURL().toExternalForm(), file));
-                        }
-
-                        if (log.isDebugEnabled()) {
-                            log.debug(" :: add catalog resource: {}", resource.toExternalForm());
-                        }
-
-                        catalogFiles.add(resource);
-                    }
-                });
+      });
 
 
-        if (log.isDebugEnabled()) {
-            scanner.verbose();
-        }
-
-        scanner.scan();
-
-        return catalogFiles;
+    if (log.isDebugEnabled()) {
+      scanner.verbose();
     }
 
-    protected List<URL> getClassPathElementURLs(List<String> elements) throws MalformedURLException {
-        List<URL> result = new ArrayList<>(elements.size());
-        for (String dep : elements) {
-            result.add(new File(dep).toURI().toURL());
-        }
-        return result;
+    scanner.scan();
+
+    return catalogFiles;
+
+  }
+
+  protected List<URL> getClassPathElementURLs(List<String> elements) throws MalformedURLException {
+    List<URL> result = new ArrayList<>(elements.size());
+    for (String dep : elements) {
+      result.add(new File(dep).toURI().toURL());
     }
+    return result;
+  }
 
      /*
     * FIXME need a function to resolve catalog files
@@ -226,24 +228,24 @@ public class CatalogFileScanner {
     *
     */
 
-    protected List<URL> getCatalogUrls() throws ArtifactResolutionException, IOException {
+  protected List<URL> getCatalogUrls() throws ArtifactResolutionException, IOException {
 
-        final List<URL> catalogUrls = new ArrayList<URL>(catalogs.length);
+    final List<URL> allCatalogUrls = new ArrayList<URL>(catalogs.length);
 
-        for (ResourceEntry catalog : catalogs) {
-
-            List<URL> catalogURLs = resourceEntryResolver.createResourceEntryUrls(
-                    repositorySystemSession,
-                    remoteRepositories,
-                    catalog,
-                    sourceDirectory.getAbsolutePath(),
-                    CollectionUtils.toArray(includes, String.class),
-                    CollectionUtils.toArray(excludes, String.class));
-
-            catalogUrls.addAll(catalogURLs);
-        }
-        return catalogUrls;
+    for (ResourceEntry catalog : catalogs) {
+      List<URL> resolvedCatalogUrls = resourceEntryResolver.createResourceEntryUrls(
+        repositorySystemSession,
+        remoteRepositories,
+        catalog,
+        sourceDirectory.getAbsolutePath(),
+        CollectionUtils.toArray(includes, String.class),
+        CollectionUtils.toArray(excludes, String.class)
+      );
+      allCatalogUrls.addAll(resolvedCatalogUrls);
     }
 
+    return allCatalogUrls;
+
+  }
 
 }

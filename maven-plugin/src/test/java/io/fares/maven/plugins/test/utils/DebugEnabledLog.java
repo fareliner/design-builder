@@ -22,11 +22,13 @@ package io.fares.maven.plugins.test.utils;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 
 public class DebugEnabledLog extends SystemStreamLog {
-	public DebugEnabledLog() {
-		super();
-	}
- 
-	public boolean isDebugEnabled() {
-		return true;
-	}
+
+  public DebugEnabledLog() {
+    super();
+  }
+
+  public boolean isDebugEnabled() {
+    return true;
+  }
+
 }

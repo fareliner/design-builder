@@ -24,93 +24,93 @@ import java.util.List;
 
 public class StringUtils {
 
+  /**
+   * The empty String {@code ""}.
+   */
+  public static final String EMPTY = "";
 
-    /**
-     * The empty String {@code ""}.
-     */
-    public static final String EMPTY = "";
+  private static String[] EMPTY_STRING_ARRAY = new String[0];
 
-    private static String[] EMPTY_STRING_ARRAY = new String[0];
+  /**
+   * Checks if a (trimmed) String is <code>null</code> or empty.
+   *
+   * @param string the String to check
+   * @return <code>true</code> if the string is <code>null</code>, or length
+   * zero once trimmed.
+   */
+  public static boolean isEmpty(String string) {
+    return (string == null || string.trim().length() == 0);
+  }
 
-    /**
-     * Checks if a (trimmed) String is <code>null</code> or empty.
-     *
-     * @param string the String to check
-     * @return <code>true</code> if the string is <code>null</code>, or length
-     * zero once trimmed.
-     */
-    public static boolean isEmpty(String string) {
-        return (string == null || string.trim().length() == 0);
+  public static String escapeSpace(String url) {
+    // URLEncoder didn't work.
+    StringBuffer buf = new StringBuffer();
+    for (int i = 0; i < url.length(); i++) {
+      // TODO: not sure if this is the only character that needs to be
+      // escaped.
+      if (url.charAt(i) == ' ')
+        buf.append("%20");
+      else
+        buf.append(url.charAt(i));
+    }
+    return buf.toString();
+  }
+
+  public static String[] split(String str, char separatorChar,
+                               boolean preserveAllTokens) {
+    // Performance tuned for 2.0 (JDK1.4)
+
+    if (str == null) {
+      return null;
+    }
+    int len = str.length();
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+    List<String> list = new ArrayList<String>();
+    int i = 0, start = 0;
+    boolean match = false;
+    boolean lastMatch = false;
+    while (i < len) {
+      if (str.charAt(i) == separatorChar) {
+        if (match || preserveAllTokens) {
+          list.add(str.substring(start, i));
+          match = false;
+          lastMatch = true;
+        }
+        start = ++i;
+        continue;
+      }
+      lastMatch = false;
+      match = true;
+      i++;
+    }
+    if (match || (preserveAllTokens && lastMatch)) {
+      list.add(str.substring(start, i));
+    }
+    return (String[]) list.toArray(new String[list.size()]);
+  }
+
+  public static String join(final List<String> list, final char separator) {
+    if (list == null) {
+      return null;
     }
 
-    public static String escapeSpace(String url) {
-        // URLEncoder didn't work.
-        StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < url.length(); i++) {
-            // TODO: not sure if this is the only character that needs to be
-            // escaped.
-            if (url.charAt(i) == ' ')
-                buf.append("%20");
-            else
-                buf.append(url.charAt(i));
-        }
-        return buf.toString();
+    if (list.size() <= 0) {
+      return EMPTY;
     }
 
-    public static String[] split(String str, char separatorChar,
-                                 boolean preserveAllTokens) {
-        // Performance tuned for 2.0 (JDK1.4)
+    final StringBuilder buf = new StringBuilder(list.size() * 16);
 
-        if (str == null) {
-            return null;
-        }
-        int len = str.length();
-        if (len == 0) {
-            return EMPTY_STRING_ARRAY;
-        }
-        List<String> list = new ArrayList<String>();
-        int i = 0, start = 0;
-        boolean match = false;
-        boolean lastMatch = false;
-        while (i < len) {
-            if (str.charAt(i) == separatorChar) {
-                if (match || preserveAllTokens) {
-                    list.add(str.substring(start, i));
-                    match = false;
-                    lastMatch = true;
-                }
-                start = ++i;
-                continue;
-            }
-            lastMatch = false;
-            match = true;
-            i++;
-        }
-        if (match || (preserveAllTokens && lastMatch)) {
-            list.add(str.substring(start, i));
-        }
-        return (String[]) list.toArray(new String[list.size()]);
+    for (int i = 0; i < list.size(); i++) {
+      if (i > 0) {
+        buf.append(separator);
+      }
+      buf.append(list.get(i));
     }
 
-    public static String join(final List<String> list, final char separator) {
-        if (list == null) {
-            return null;
-        }
+    return buf.toString();
 
-        if (list.size() <= 0) {
-            return EMPTY;
-        }
-
-        final StringBuilder buf = new StringBuilder(list.size() * 16);
-
-        for (int i = 0; i < list.size(); i++) {
-            if (i > 0) {
-                buf.append(separator);
-            }
-            buf.append(list.get(i));
-        }
-        return buf.toString();
-    }
-
+  }
 
 }

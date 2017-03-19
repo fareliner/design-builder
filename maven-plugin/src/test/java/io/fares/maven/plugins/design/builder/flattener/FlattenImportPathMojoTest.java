@@ -48,67 +48,67 @@ import org.eclipse.aether.repository.*;
 
 public class FlattenImportPathMojoTest {
 
-    protected final Logger log = LoggerFactory
-            .getLogger(FlattenImportPathMojoTest.class);
+  protected final Logger log = LoggerFactory
+    .getLogger(FlattenImportPathMojoTest.class);
 
-    @Rule
-    public MojoRule rule = new MojoRule();
+  @Rule
+  public MojoRule rule = new MojoRule();
 
-    @Rule
-    public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
+  @Rule
+  public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
 
-    /**
-     * @throws Exception if any
-     */
-    //@Ignore("Needs more work to make the mocking behave.")
-    @Test
-    public void testDependencyResolver() throws Exception {
+  /**
+   * @throws Exception if any
+   */
+  //@Ignore("Needs more work to make the mocking behave.")
+  @Test
+  public void testDependencyResolver() throws Exception {
 
 
-        File baseDir = resources.getBasedir("test-dependency-resolver-config");
-        File pomFile = new File(baseDir, "pom.xml");
+    File baseDir = resources.getBasedir("test-dependency-resolver-config");
+    File pomFile = new File(baseDir, "pom.xml");
 
-        PlexusContainer container = rule.getContainer();
+    PlexusContainer container = rule.getContainer();
 
-        // see if we can get localrepo manager from system and add to session
-        DefaultRepositorySystemSession systemSession = new DefaultRepositorySystemSession();
-        LocalRepository lr = new LocalRepository(new File(baseDir, "repo"));
-        DefaultRepositorySystem system = container.lookup(DefaultRepositorySystem.class);
-        LocalRepositoryManager lrm = system.newLocalRepositoryManager(systemSession, lr);
-        systemSession.setLocalRepositoryManager(lrm);
-        systemSession.setProxySelector(AetherUtil.newProxySelector(baseDir));
+    // see if we can get localrepo manager from system and add to session
+    DefaultRepositorySystemSession systemSession = new DefaultRepositorySystemSession();
+    LocalRepository lr = new LocalRepository(new File(baseDir, "repo"));
+    DefaultRepositorySystem system = container.lookup(DefaultRepositorySystem.class);
+    LocalRepositoryManager lrm = system.newLocalRepositoryManager(systemSession, lr);
+    systemSession.setLocalRepositoryManager(lrm);
+    systemSession.setProxySelector(AetherUtil.newProxySelector(baseDir));
 
-        MavenExecutionRequest request = new DefaultMavenExecutionRequest();
+    MavenExecutionRequest request = new DefaultMavenExecutionRequest();
 
-        request.setBaseDirectory(baseDir);
-        request.setLocalRepositoryPath(new File(baseDir, ".m2"));
-        request.setLocalRepository(new StubArtifactRepository(new File(baseDir, ".m2").getCanonicalPath()));
+    request.setBaseDirectory(baseDir);
+    request.setLocalRepositoryPath(new File(baseDir, ".m2"));
+    request.setLocalRepository(new StubArtifactRepository(new File(baseDir, ".m2").getCanonicalPath()));
 
-        ProjectBuildingRequest configuration = request.getProjectBuildingRequest();
-        configuration.setResolveDependencies(true);
-        configuration.setRepositorySession(systemSession);
+    ProjectBuildingRequest configuration = request.getProjectBuildingRequest();
+    configuration.setResolveDependencies(true);
+    configuration.setRepositorySession(systemSession);
 
-        ProjectBuilder projectBuilder = rule.lookup(ProjectBuilder.class);
-        ProjectBuildingResult projectBuildingResult = projectBuilder.build(pomFile, configuration);
+    ProjectBuilder projectBuilder = rule.lookup(ProjectBuilder.class);
+    ProjectBuildingResult projectBuildingResult = projectBuilder.build(pomFile, configuration);
 
-        MavenProject project = projectBuildingResult.getProject();
-        MavenExecutionResult result = new DefaultMavenExecutionResult();
-        MavenSession session = new MavenSession(container, systemSession, request, result);
-        session.setCurrentProject(project);
-        session.setProjects(Arrays.asList(project));
+    MavenProject project = projectBuildingResult.getProject();
+    MavenExecutionResult result = new DefaultMavenExecutionResult();
+    MavenSession session = new MavenSession(container, systemSession, request, result);
+    session.setCurrentProject(project);
+    session.setProjects(Arrays.asList(project));
 
-        MojoExecution exec = rule.newMojoExecution("flatten");
-        FlattenImportPathMojo mojo = (FlattenImportPathMojo) rule.lookupConfiguredMojo(session, exec);
+    MojoExecution exec = rule.newMojoExecution("flatten");
+    FlattenImportPathMojo mojo = (FlattenImportPathMojo) rule.lookupConfiguredMojo(session, exec);
 
-        // set sources dir
-        rule.setVariableValueToObject(mojo, "sourceDirectory", new File(baseDir, "src"));
-        rule.setVariableValueToObject(mojo, "outputDirectory", new File(baseDir, "target"));
+    // set sources dir
+    rule.setVariableValueToObject(mojo, "sourceDirectory", new File(baseDir, "src"));
+    rule.setVariableValueToObject(mojo, "outputDirectory", new File(baseDir, "target"));
 
-        mojo.execute();
+    mojo.execute();
 
-        assertNotNull(pomFile);
-        assertTrue(pomFile.exists());
+    assertNotNull(pomFile);
+    assertTrue(pomFile.exists());
 
-    }
+  }
 
 }

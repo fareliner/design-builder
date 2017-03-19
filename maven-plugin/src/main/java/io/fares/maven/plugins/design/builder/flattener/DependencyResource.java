@@ -51,96 +51,97 @@ import org.apache.maven.artifact.Artifact;
  */
 public class DependencyResource extends Dependency {
 
-    private static final long serialVersionUID = -7680130645800522100L;
-    private String resource;
+  private static final long serialVersionUID = -7680130645800522100L;
+  private String resource;
 
-    public String getResource() {
-        return resource;
+  public DependencyResource() {
+    setScope(Artifact.SCOPE_RUNTIME);
+  }
+
+  public static DependencyResource valueOf(String value) throws IllegalArgumentException {
+
+    final String resourceDelimiter = "!/";
+    final int resourceDelimiterPosition = value.indexOf(resourceDelimiter);
+
+    final String dependencyPart;
+    final String resource;
+    if (resourceDelimiterPosition == -1) {
+      dependencyPart = value;
+      resource = "";
+    } else {
+      dependencyPart = value.substring(0, resourceDelimiterPosition);
+      resource = value.substring(resourceDelimiterPosition + resourceDelimiter.length());
     }
 
-    public void setResource(String resource) {
-        this.resource = resource;
+    final String[] dependencyParts = StringUtils.split(dependencyPart, ':', true);
+
+    if (dependencyParts.length < 2) {
+      throw new IllegalArgumentException(
+        format("Error parsing dependency descriptor [{0}], both groupId and artifactId must be specified.",
+          dependencyPart));
     }
 
-    public DependencyResource() {
-        setScope(Artifact.SCOPE_RUNTIME);
+    if (dependencyParts.length > 5) {
+      throw new IllegalArgumentException(
+        format("Error parsing dependency descriptor [{0}], it contains too many parts.", dependencyPart));
     }
 
-    public String toString() {
-        return format("Dependency[groupId={0}, artifactId={1}, version={2}, type={4}, classifier={5}, resource={6}]",
-                getGroupId(), getArtifactId(), getVersion(), getType(), getClassifier(), getResource());
+    final String groupId = dependencyParts[0];
+    final String artifactId = dependencyParts[1];
+    final String version;
+
+    final String type;
+
+    if (dependencyParts.length > 2) {
+      type = (dependencyParts[2] == null || dependencyParts[2].length() == 0) ? null : dependencyParts[2];
+    } else {
+      type = null;
     }
 
-    public static DependencyResource valueOf(String value) throws IllegalArgumentException {
+    final String classifier;
 
-        final String resourceDelimiter = "!/";
-        final int resourceDelimiterPosition = value.indexOf(resourceDelimiter);
-
-        final String dependencyPart;
-        final String resource;
-        if (resourceDelimiterPosition == -1) {
-            dependencyPart = value;
-            resource = "";
-        } else {
-            dependencyPart = value.substring(0, resourceDelimiterPosition);
-            resource = value.substring(resourceDelimiterPosition + resourceDelimiter.length());
-        }
-
-        final String[] dependencyParts = StringUtils.split(dependencyPart, ':', true);
-
-        if (dependencyParts.length < 2) {
-            throw new IllegalArgumentException(
-                    format("Error parsing dependency descriptor [{0}], both groupId and artifactId must be specified.",
-                            dependencyPart));
-        }
-
-        if (dependencyParts.length > 5) {
-            throw new IllegalArgumentException(
-                    format("Error parsing dependency descriptor [{0}], it contains too many parts.", dependencyPart));
-        }
-
-        final String groupId = dependencyParts[0];
-        final String artifactId = dependencyParts[1];
-        final String version;
-
-        final String type;
-
-        if (dependencyParts.length > 2) {
-            type = (dependencyParts[2] == null || dependencyParts[2].length() == 0) ? null : dependencyParts[2];
-        } else {
-            type = null;
-        }
-
-        final String classifier;
-
-        if (dependencyParts.length > 3) {
-            classifier = (dependencyParts[3] == null || dependencyParts[3].length() == 0) ? null : dependencyParts[3];
-        } else {
-            classifier = null;
-        }
-
-        if (dependencyParts.length > 4) {
-            version = (dependencyParts[4] == null || dependencyParts[4].length() == 0) ? null : dependencyParts[4];
-        } else {
-            version = null;
-        }
-
-        final DependencyResource dependencyResource = new DependencyResource();
-
-        dependencyResource.setGroupId(groupId);
-        dependencyResource.setArtifactId(artifactId);
-        if (version != null) {
-            dependencyResource.setVersion(version);
-        }
-        if (type != null) {
-            dependencyResource.setType(type);
-        }
-        if (classifier != null) {
-            dependencyResource.setClassifier(classifier);
-        }
-        if (resource != null) {
-            dependencyResource.setResource(resource);
-        }
-        return dependencyResource;
+    if (dependencyParts.length > 3) {
+      classifier = (dependencyParts[3] == null || dependencyParts[3].length() == 0) ? null : dependencyParts[3];
+    } else {
+      classifier = null;
     }
+
+    if (dependencyParts.length > 4) {
+      version = (dependencyParts[4] == null || dependencyParts[4].length() == 0) ? null : dependencyParts[4];
+    } else {
+      version = null;
+    }
+
+    final DependencyResource dependencyResource = new DependencyResource();
+
+    dependencyResource.setGroupId(groupId);
+    dependencyResource.setArtifactId(artifactId);
+    if (version != null) {
+      dependencyResource.setVersion(version);
+    }
+    if (type != null) {
+      dependencyResource.setType(type);
+    }
+    if (classifier != null) {
+      dependencyResource.setClassifier(classifier);
+    }
+    if (resource != null) {
+      dependencyResource.setResource(resource);
+    }
+    return dependencyResource;
+  }
+
+  public String getResource() {
+    return resource;
+  }
+
+  public void setResource(String resource) {
+    this.resource = resource;
+  }
+
+  public String toString() {
+    return format("Dependency[groupId={0}, artifactId={1}, version={2}, type={4}, classifier={5}, resource={6}]",
+      getGroupId(), getArtifactId(), getVersion(), getType(), getClassifier(), getResource());
+  }
+
 }

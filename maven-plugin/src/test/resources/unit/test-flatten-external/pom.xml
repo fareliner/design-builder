@@ -18,35 +18,33 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.fares.maven.plugins.unit</groupId>
+  <artifactId>test-flatten-external</artifactId>
+  <version>1.0.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Unit Test - test-flatten-external</name>
 
-	<groupId>io.fares.maven.plugins.unit</groupId>
-	<artifactId>test-flatten-external</artifactId>
-	<version>1.0.0.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>Unit Test - test-flatten-external</name>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>io.fares.maven.plugins</groupId>
-				<artifactId>design-model-builder-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>test-01</id>
-						<phase>test</phase>
-						<goals>
-							<goal>flatten</goal>
-						</goals>
-						<configuration>
-							<flattenTarget>http://webservices.sabre.com/wsdl/sabreXML1.0.00/SSS/SSSAdvShopRQ_v1-5-0.wsdl</flattenTarget>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fares.maven.plugins</groupId>
+        <artifactId>design-model-builder-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-01</id>
+            <phase>test</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <configuration>
+              <flattenTarget>http://webservices.sabre.com/wsdl/sabreXML1.0.00/SSS/SSSAdvShopRQ_v1-5-0.wsdl</flattenTarget>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

@@ -18,51 +18,49 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.fares.maven.plugins.unit</groupId>
+  <artifactId>test-execution-config</artifactId>
+  <version>1.0.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Unit Test - test-flatten-config</name>
 
-	<groupId>io.fares.maven.plugins.unit</groupId>
-	<artifactId>test-execution-config</artifactId>
-	<version>1.0.0.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>Unit Test - test-flatten-config</name>
+  <dependencies>
+    <dependency>
+      <groupId>io.fares.maven.plugins.test.unit</groupId>
+      <artifactId>jar-1</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.fares.maven.plugins.test.unit</groupId>
+      <artifactId>jar-2</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+  </dependencies>
 
-	<dependencies>
-		<dependency>
-			<groupId>io.fares.maven.plugins.test.unit</groupId>
-			<artifactId>jar-1</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.fares.maven.plugins.test.unit</groupId>
-			<artifactId>jar-2</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>io.fares.maven.plugins</groupId>
-				<artifactId>design-model-builder-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>test-01</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>flatten</goal>
-						</goals>
-						<configuration>
-							<catalogResourceFilter>classpath*:/catalog.xml</catalogResourceFilter>
-							<flattenTargets>
-								<flattenTarget>${project.basedir}/src/main/wsdl/FlashyService.wsdl</flattenTarget>
-							</flattenTargets>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.fares.maven.plugins</groupId>
+        <artifactId>design-model-builder-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-01</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>flatten</goal>
+            </goals>
+            <configuration>
+              <catalogResourceFilter>classpath*:/catalog.xml</catalogResourceFilter>
+              <flattenTargets>
+                <flattenTarget>${project.basedir}/src/main/wsdl/FlashyService.wsdl</flattenTarget>
+              </flattenTargets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

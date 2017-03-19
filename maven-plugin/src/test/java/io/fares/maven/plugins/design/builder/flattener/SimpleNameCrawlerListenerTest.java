@@ -28,92 +28,86 @@ import org.slf4j.LoggerFactory;
 
 public class SimpleNameCrawlerListenerTest {
 
-	Logger log = LoggerFactory.getLogger(getClass());
+  Logger log = LoggerFactory.getLogger(getClass());
 
-	@Test
-	public void testGeneratedName1() {
+  @Test
+  public void testGeneratedName1() {
 
-		SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File(
-				"/tmp"));
+    SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File("/tmp"));
 
-		String s = l
-				.suggestGeneratedUri(
-						"http://services.acme.com/MyService?WSDL&type=XSD&file=schema:f333485f-56bf-4fe6-b33a-8e7744f7b5ab",
-						"wsdl");
+    String s = l
+      .suggestGeneratedUri(
+        "http://services.acme.com/MyService?WSDL&type=XSD&file=schema:f333485f-56bf-4fe6-b33a-8e7744f7b5ab",
+        "wsdl");
 
-		log.info("Suggested is {}", s);
+    log.info("Suggested is {}", s);
 
-		Assert.assertEquals("schema_f333485f-56bf-4fe6-b33a-8e7744f7b5ab.xsd",
-				s);
+    Assert.assertEquals("schema_f333485f-56bf-4fe6-b33a-8e7744f7b5ab.xsd", s);
 
-	}
+  }
 
-	@Test
-	public void testGeneratedName2() {
+  @Test
+  public void testGeneratedName2() {
 
-		SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File(
-				"/tmp"));
+    SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File("/tmp"));
 
-		String s = l
-				.suggestGeneratedUri(
-						"https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc?wsdl=wsdl1",
-						"wsdl");
+    String s = l
+      .suggestGeneratedUri(
+        "https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc?wsdl=wsdl1",
+        "wsdl");
 
-		log.info("Suggested is {}", s);
+    log.info("Suggested is {}", s);
 
-		Assert.assertEquals("MerchantAPIService.svc-wsdl1.wsdl", s);
+    Assert.assertEquals("MerchantAPIService.svc-wsdl1.wsdl", s);
 
-	}
+  }
 
-	@Test
-	public void testGeneratedName3() {
+  @Test
+  public void testGeneratedName3() {
 
-		SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File(
-				"/tmp"));
+    SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File("/tmp"));
 
-		String s = l
-				.suggestGeneratedUri(
-						"https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc/Xml/transaction/initiate?wsdl",
-						"wsdl");
+    String s = l
+      .suggestGeneratedUri(
+        "https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc/Xml/transaction/initiate?wsdl",
+        "wsdl");
 
-		log.info("Suggested is {}", s);
+    log.info("Suggested is {}", s);
 
-		Assert.assertEquals("initiate.wsdl", s);
+    Assert.assertEquals("initiate.wsdl", s);
 
-	}
+  }
 
-	@Test
-	public void testGeneratedName4() {
+  @Test
+  public void testGeneratedName4() {
 
-		SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File(
-				"/tmp"));
+    SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File("/tmp"));
 
-		String s = l
-				.suggestGeneratedUri(
-						"https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc?xsd=xsd0",
-						"dunno");
+    String s = l
+      .suggestGeneratedUri(
+        "https://merchantapi.apac.paywithpoli.com/MerchantAPIService.svc?xsd=xsd0",
+        "dunno");
 
-		log.info("Suggested is {}", s);
+    log.info("Suggested is {}", s);
 
-		Assert.assertEquals("MerchantAPIService.svc-xsd0.xsd", s);
+    Assert.assertEquals("MerchantAPIService.svc-xsd0.xsd", s);
 
-	}
+  }
 
-	@Test
-	public void testGeneratedNameFile() {
+  @Test
+  public void testGeneratedNameFile() {
 
-		SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File(
-				"/tmp"));
+    SimpleNameCrawlerListener l = new SimpleNameCrawlerListener(new File("/tmp"));
 
-		String s = l
-				.suggestGeneratedUri(
-						"file:/C:/dev/workspaces/ndc/model/platform/api/transaction/transaction-session-pool/src/main/resources/SessionPool/SessionPool.wsdl",
-						"wsdl");
+    String s = l
+      .suggestGeneratedUri(
+        "file:/C:/dev/workspaces/ndc/model/platform/api/transaction/transaction-session-pool/src/main/resources/SessionPool/SessionPool.wsdl",
+        "wsdl");
 
-		log.info("Suggested is {}", s);
+    log.info("Suggested is {}", s);
 
-		Assert.assertEquals("SessionPool.wsdl", s);
+    Assert.assertEquals("SessionPool.wsdl", s);
 
-	}
+  }
 
 }

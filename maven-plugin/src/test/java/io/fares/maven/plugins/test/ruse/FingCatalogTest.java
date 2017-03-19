@@ -34,28 +34,28 @@ import org.junit.Test;
 
 public class FingCatalogTest {
 
-    @Rule
-    public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
+  @Rule
+  public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
 
 
-    @Test
-    public void testURLJar() throws IOException, URISyntaxException {
+  @Test
+  public void testURLJar() throws IOException, URISyntaxException {
 
-        URL repo = getClass().getResource("/");
-        URI uri = repo.toURI();
+    URL repo = getClass().getResource("/");
+    URI uri = repo.toURI();
 
-        URI catJar = uri
-                .resolve("../../src/test/resources/unit/test-dependency-resolver-config/lib/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar");
+    URI catJar = uri
+      .resolve("../../src/test/resources/unit/test-dependency-resolver-config/lib/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar");
 
-        URL url = new URL("jar:" + catJar.toString() + "!/catalog.xml");
+    URL url = new URL("jar:" + catJar.toString() + "!/catalog.xml");
 
-        URLConnection cn = url.openConnection();
+    URLConnection cn = url.openConnection();
 
-        InputStream is = url.openStream();
+    InputStream is = url.openStream();
 
-        assertNotNull("Need to connect succesfully", is);
+    assertNotNull("Need to connect succesfully", is);
 
-        System.out.println(url.toExternalForm());
+    System.out.println(url.toExternalForm());
 
-    }
+  }
 }

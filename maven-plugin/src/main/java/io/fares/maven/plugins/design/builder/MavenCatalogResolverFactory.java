@@ -40,39 +40,43 @@ import org.apache.xml.resolver.CatalogManager;
 @Component(role = MavenCatalogResolverFactory.class)
 public class MavenCatalogResolverFactory implements Service {
 
-    private final Logger log = LoggerFactory.getLogger(MavenCatalogResolverFactory.class);
+  private final Logger log = LoggerFactory.getLogger(MavenCatalogResolverFactory.class);
 
-    @Requirement
-    private ArtifactResolver artifactResolver;
+  @Requirement
+  private ArtifactResolver artifactResolver;
 
-    public MavenCatalogResolver newInstance(RepositorySystemSession session, List<URL> catalogURLs) {
-        // create a catalog manager from discovered catalog files
-        final CatalogManager catalogManager = new CatalogManager();
-        catalogManager.setIgnoreMissingProperties(true);
-        if (log.isDebugEnabled()) {
-            catalogManager.setVerbosity(9);
-        }
+  public MavenCatalogResolver newInstance(RepositorySystemSession session, List<URL> catalogURLs) {
 
-        catalogManager.setUseStaticCatalog(false);
-        catalogManager.setIgnoreMissingProperties(true);
+    // create a catalog manager from discovered catalog files
+    final CatalogManager catalogManager = new CatalogManager();
+    catalogManager.setIgnoreMissingProperties(true);
 
-        // need to prep the manager with resolved catalog URLs
-        boolean firstEntry = true;
-        StringBuilder catB = new StringBuilder();
-        for (URL catalogURL : catalogURLs) {
-            if (!firstEntry) {
-                catB.append(';');
-            }
-            catB.append(catalogURL.toExternalForm());
-            firstEntry = false;
-        }
-        catalogManager.setCatalogFiles(catB.toString());
-
-        return new MavenCatalogResolver(catalogManager, session, artifactResolver);
+    if (log.isDebugEnabled()) {
+      catalogManager.setVerbosity(9);
     }
 
-    @Override
-    public void initService(ServiceLocator locator) {
+    catalogManager.setUseStaticCatalog(false);
+    catalogManager.setIgnoreMissingProperties(true);
+
+    // need to prep the manager with resolved catalog URLs
+    boolean firstEntry = true;
+    StringBuilder catB = new StringBuilder();
+    for (URL catalogURL : catalogURLs) {
+      if (!firstEntry) {
+        catB.append(';');
+      }
+      catB.append(catalogURL.toExternalForm());
+      firstEntry = false;
     }
+
+    catalogManager.setCatalogFiles(catB.toString());
+
+    return new MavenCatalogResolver(catalogManager, session, artifactResolver);
+
+  }
+
+  @Override
+  public void initService(ServiceLocator locator) {
+  }
 
 }

@@ -33,54 +33,54 @@ import org.apache.maven.project.MavenProject;
 
 public class GenerateCatalogMojoTest {
 
-    protected final Logger log = LoggerFactory.getLogger(GenerateCatalogMojoTest.class);
+  protected final Logger log = LoggerFactory.getLogger(GenerateCatalogMojoTest.class);
 
-    @Rule
-    public MojoRule rule = new MojoRule();
+  @Rule
+  public MojoRule rule = new MojoRule();
 
-    @Rule
-    public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
+  @Rule
+  public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
 
-    @Test
-    public void testGenerateCatalogBasic() throws Exception {
-        File baseDir = resources.getBasedir("generate-catalog-basic-test");
-        MavenProject project = rule.readMavenProject(baseDir);
-        GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-        mojo.execute();
-    }
+  @Test
+  public void testGenerateCatalogBasic() throws Exception {
+    File baseDir = resources.getBasedir("generate-catalog-basic-test");
+    MavenProject project = rule.readMavenProject(baseDir);
+    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
+    mojo.execute();
+  }
 
-    @Test
-    public void testGenerateCatalogLevel() throws Exception {
-        File baseDir = resources.getBasedir("generate-catalog-level-test");
-        MavenProject project = rule.readMavenProject(baseDir);
-        GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-        mojo.execute();
-    }
+  @Test
+  public void testGenerateCatalogLevel() throws Exception {
+    File baseDir = resources.getBasedir("generate-catalog-level-test");
+    MavenProject project = rule.readMavenProject(baseDir);
+    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
+    mojo.execute();
+  }
 
-    @Test
-    public void testGenerateCatalogZeroLevel() throws Exception {
-        File baseDir = resources.getBasedir("generate-catalog-0-level-test");
-        MavenProject project = rule.readMavenProject(baseDir);
-        GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-        mojo.setTargetCatalogFile(new File(mojo.getSourceDirectory(), "lvl-01/catalog.xcat") );
-        mojo.setSystemIdPathOffset(1);
-        mojo.execute();
-    }
+  @Test
+  public void testGenerateCatalogZeroLevel() throws Exception {
+    File baseDir = resources.getBasedir("generate-catalog-0-level-test");
+    MavenProject project = rule.readMavenProject(baseDir);
+    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
+    mojo.setTargetCatalogFile(new File(mojo.getSourceDirectory(), "lvl-01/catalog.xcat"));
+    mojo.setSystemIdPathOffset(1);
+    mojo.execute();
+  }
 
-    @Test
-    public void testGenerateTestDataTypes() throws Exception {
-        File baseDir = resources.getBasedir("test-data-types");
-        MavenProject project = rule.readMavenProject(baseDir);
-        GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-        mojo.execute();
-    }
+  @Test
+  public void testGenerateTestDataTypes() throws Exception {
+    File baseDir = resources.getBasedir("test-data-types");
+    MavenProject project = rule.readMavenProject(baseDir);
+    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
+    mojo.execute();
+  }
 
-    @Test
-    public void testMultiExecution() throws Exception {
-        File baseDir = resources.getBasedir("test-execution-config");
-        MavenProject project = rule.readMavenProject(baseDir);
-        GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-        mojo.execute();
-    }
+  @Test
+  public void testMultiExecution() throws Exception {
+    File baseDir = resources.getBasedir("test-execution-config");
+    MavenProject project = rule.readMavenProject(baseDir);
+    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
+    mojo.execute();
+  }
 
 }

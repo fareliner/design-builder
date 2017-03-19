@@ -50,41 +50,40 @@ import javax.inject.Named;
 @Component(role = ArtifactDepdenencyResolver.class)
 public class ArtifactDepdenencyResolver {
 
-    Logger log = LoggerFactory.getLogger(ArtifactDepdenencyResolver.class);
+  Logger log = LoggerFactory.getLogger(ArtifactDepdenencyResolver.class);
 
-    @Requirement
-    private RepositorySystem system;
+  @Requirement
+  private RepositorySystem system;
 
-    @Requirement
-    private RepositorySystemSession session;
+  @Requirement
+  private RepositorySystemSession session;
 
-    public ArtifactDepdenencyResolver() {
+  public ArtifactDepdenencyResolver() {
+  }
+
+  public ArtifactDepdenencyResolver(RepositorySystem system, RepositorySystemSession session) {
+    this.system = system;
+    this.session = session;
+  }
+
+  public List<URL> scan(Set<Artifact> artifacts, List<RemoteRepository> remoteRepositories) throws DependencyResolutionException, MalformedURLException {
+    List<URL> result = new ArrayList<>();
+    CollectRequest collectRequest = new CollectRequest(convertArtifactsToDependencies(artifacts), null, remoteRepositories);
+    DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, new ScopeDependencyFilter());
+    List<ArtifactResult> artifactResults = system.resolveDependencies(session, dependencyRequest).getArtifactResults();
+    for (ArtifactResult artifactResult : artifactResults) {
+      result.add(artifactResult.getArtifact().getFile().toURI().toURL());
     }
+    return result;
+  }
 
-    public ArtifactDepdenencyResolver(RepositorySystem system, RepositorySystemSession session) {
-        this.system = system;
-        this.session = session;
+  private List<org.eclipse.aether.graph.Dependency> convertArtifactsToDependencies(Set<Artifact> artifacts) {
+    List<org.eclipse.aether.graph.Dependency> deps = new ArrayList<>(artifacts == null ? 0 : artifacts.size());
+    for (org.apache.maven.artifact.Artifact a : artifacts) {
+      org.eclipse.aether.artifact.Artifact artifact = new DefaultArtifact(a.getGroupId(), a.getArtifactId(), a.getClassifier(), a.getType(), a.getVersion());
+      deps.add(new org.eclipse.aether.graph.Dependency(artifact, JavaScopes.COMPILE));
     }
-
-    public List<URL> scan(Set<Artifact> artifacts, List<RemoteRepository> remoteRepositories) throws DependencyResolutionException, MalformedURLException {
-        List<URL> result = new ArrayList<>();
-        CollectRequest collectRequest = new CollectRequest(convertArtifactsToDependencies(artifacts), null, remoteRepositories);
-        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, new ScopeDependencyFilter());
-        List<ArtifactResult> artifactResults = system.resolveDependencies(session, dependencyRequest).getArtifactResults();
-        for (ArtifactResult artifactResult : artifactResults) {
-            result.add(artifactResult.getArtifact().getFile().toURI().toURL());
-        }
-        return result;
-    }
-
-    private List<org.eclipse.aether.graph.Dependency> convertArtifactsToDependencies(Set<Artifact> artifacts) {
-        List<org.eclipse.aether.graph.Dependency> deps = new ArrayList<>(artifacts == null ? 0 : artifacts.size());
-        for (org.apache.maven.artifact.Artifact a : artifacts) {
-            org.eclipse.aether.artifact.Artifact artifact = new DefaultArtifact(a.getGroupId(), a.getArtifactId(), a.getClassifier(), a.getType(), a.getVersion());
-            deps.add(new org.eclipse.aether.graph.Dependency(artifact, JavaScopes.COMPILE));
-        }
-        return deps;
-    }
-
+    return deps;
+  }
 
 }

@@ -39,22 +39,21 @@ import io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyRe
 @Component(role = CatalogFileScannerFactory.class)
 public class CatalogFileScannerFactory {
 
-    @Requirement
-    ResourceEntryDependencyResolver resourceResolver;
+  @Requirement
+  ResourceEntryDependencyResolver resourceResolver;
 
-    public CatalogFileScanner newInstance(MavenProject project, RepositorySystemSession repositorySystemSession, List<RemoteRepository> remoteRepositories, List<Resource> resources, ResourceEntry[] catalogs, File sourceDirectory, Set<String> includes, Set<String> excludes) throws DependencyResolutionRequiredException {
-        CatalogFileScanner scanner = new CatalogFileScanner();
-        scanner.setCompileClasspathElements(project.getCompileClasspathElements());
-        scanner.setRepositorySystemSession(repositorySystemSession);
-        scanner.setRemoteRepositories(remoteRepositories);
-        scanner.setResourceEntryResolver(resourceResolver);
-        scanner.setResources(resources);
-        scanner.setCatalogs(catalogs);
-        scanner.setSourceDirectory(sourceDirectory);
-        scanner.setIncludes(includes);
-        scanner.setExcludes(excludes);
-        return scanner;
-    }
-
+  public CatalogFileScanner newInstance(MavenProject project, RepositorySystemSession repositorySystemSession, List<RemoteRepository> remoteRepositories, List<Resource> resources, ResourceEntry[] catalogs, File sourceDirectory, Set<String> includes, Set<String> excludes) throws DependencyResolutionRequiredException {
+    CatalogFileScanner scanner = new CatalogFileScanner();
+    scanner.setCompileClasspathElements(project.getCompileClasspathElements());
+    scanner.setRepositorySystemSession(repositorySystemSession);
+    scanner.setRemoteRepositories(remoteRepositories);
+    scanner.setResourceEntryResolver(resourceResolver);
+    scanner.setResources(resources);
+    scanner.setCatalogs(catalogs);
+    scanner.setSourceDirectory(sourceDirectory);
+    scanner.setIncludes(includes);
+    scanner.setExcludes(excludes);
+    return scanner;
+  }
 
 }

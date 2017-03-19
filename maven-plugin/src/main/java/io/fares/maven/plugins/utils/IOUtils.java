@@ -35,85 +35,86 @@ import io.fares.maven.plugins.utils.CollectionUtils.Function;
 
 public class IOUtils {
 
-    public static final Function<File, URL> GET_URL = new Function<File, URL>() {
-        public URL eval(File file) {
-            try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException muex) {
-                throw new RuntimeException(muex);
-            }
-        }
-    };
-    public static final Function<File, Long> LAST_MODIFIED = new Function<File, Long>() {
-        public Long eval(File file) {
-            return lastModified(file);
-        }
-    };
+  public static final Function<File, URL> GET_URL = new Function<File, URL>() {
+    public URL eval(File file) {
+      try {
+        return file.toURI().toURL();
+      } catch (MalformedURLException muex) {
+        throw new RuntimeException(muex);
+      }
+    }
+  };
 
-    /**
-     * Creates an input source for the given file
-     *
-     * @param file file to create input source for
-     * @return Created input source object
-     */
-    public static InputSource getInputSource(File file) {
-        try {
-            final URL url = file.toURI().toURL();
-            return getInputSource(url);
-        } catch (MalformedURLException e) {
-            return new InputSource(file.getPath());
-        }
+  public static final Function<File, Long> LAST_MODIFIED = new Function<File, Long>() {
+    public Long eval(File file) {
+      return lastModified(file);
+    }
+  };
+
+  /**
+   * Creates an input source for the given file
+   *
+   * @param file file to create input source for
+   * @return Created input source object
+   */
+  public static InputSource getInputSource(File file) {
+    try {
+      final URL url = file.toURI().toURL();
+      return getInputSource(url);
+    } catch (MalformedURLException e) {
+      return new InputSource(file.getPath());
+    }
+  }
+
+  public static InputSource getInputSource(final URL url) {
+    return new InputSource(StringUtils.escapeSpace(url.toExternalForm()));
+  }
+
+  public static long lastModified(File file) {
+    if (file == null || !file.exists()) {
+      return 0;
+    } else {
+      return file.lastModified();
+    }
+  }
+
+  /**
+   * Scans given directory for files satisfying given inclusion/exclusion
+   * patterns.
+   *
+   * @param directory       Directory to scan.
+   * @param includes        inclusion pattern.
+   * @param excludes        exclusion pattern.
+   * @param defaultExcludes default exclusion flag.
+   * @return Files from the given directory which satisfy given patterns. The
+   * files are {@link File#getCanonicalFile() canonical}.
+   * @throws IOException if an error was encountered scanning the directories
+   */
+  public static List<File> scanDirectoryForFiles(final File directory,
+                                                 final String[] includes, final String[] excludes,
+                                                 boolean defaultExcludes) throws IOException {
+    if (!directory.exists()) {
+      return Collections.emptyList();
     }
 
-    public static InputSource getInputSource(final URL url) {
-        return new InputSource(StringUtils.escapeSpace(url.toExternalForm()));
+    final DirectoryScanner directoryScanner = new DirectoryScanner();
+    directoryScanner.setBasedir(directory.getAbsoluteFile());
+    final Scanner scanner = directoryScanner;
+
+    scanner.setIncludes(includes);
+    scanner.setExcludes(excludes);
+    if (defaultExcludes) {
+      scanner.addDefaultExcludes();
     }
 
-    public static long lastModified(File file) {
-        if (file == null || !file.exists()) {
-            return 0;
-        } else {
-            return file.lastModified();
-        }
+    scanner.scan();
+
+    final List<File> files = new ArrayList<File>();
+    for (final String name : scanner.getIncludedFiles()) {
+      files.add(new File(directory, name).getCanonicalFile());
     }
 
-    /**
-     * Scans given directory for files satisfying given inclusion/exclusion
-     * patterns.
-     *
-     * @param directory       Directory to scan.
-     * @param includes        inclusion pattern.
-     * @param excludes        exclusion pattern.
-     * @param defaultExcludes default exclusion flag.
-     * @return Files from the given directory which satisfy given patterns. The
-     * files are {@link File#getCanonicalFile() canonical}.
-     * @throws IOException if an error was encountered scanning the directories
-     */
-    public static List<File> scanDirectoryForFiles(final File directory,
-                                                   final String[] includes, final String[] excludes,
-                                                   boolean defaultExcludes) throws IOException {
-        if (!directory.exists()) {
-            return Collections.emptyList();
-        }
-
-        final DirectoryScanner directoryScanner = new DirectoryScanner();
-        directoryScanner.setBasedir(directory.getAbsoluteFile());
-        final Scanner scanner = directoryScanner;
-
-        scanner.setIncludes(includes);
-        scanner.setExcludes(excludes);
-        if (defaultExcludes) {
-            scanner.addDefaultExcludes();
-        }
-
-        scanner.scan();
-
-        final List<File> files = new ArrayList<File>();
-        for (final String name : scanner.getIncludedFiles()) {
-            files.add(new File(directory, name).getCanonicalFile());
-        }
-
-        return files;
-    }
+    return files;
+  }
 
 }

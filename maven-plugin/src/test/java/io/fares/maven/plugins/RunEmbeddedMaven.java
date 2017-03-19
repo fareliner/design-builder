@@ -33,18 +33,19 @@ import org.junit.Test;
 
 public class RunEmbeddedMaven {
 
-    @Rule
-    public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
+  @Rule
+  public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
 
-    @Test
-    public void testEmbedded() throws Exception {
+  @Test
+  public void testEmbedded() throws Exception {
 
-        File baseDir = resources.getBasedir("test-dependency-resolver-config");
-        File pomFile = new File(baseDir, "pom.xml");
+    File baseDir = resources.getBasedir("test-dependency-resolver-config");
+    File pomFile = new File(baseDir, "pom.xml");
 
-        System.setProperty("maven.multiModuleProjectDirectory", baseDir.toString());
-        MavenCli cli = new MavenCli();
-        cli.doMain(new String[]{"design:flatten", "-X"}, baseDir.toString(), System.out, System.out);
+    System.setProperty("maven.multiModuleProjectDirectory", baseDir.toString());
+    MavenCli cli = new MavenCli();
+    cli.doMain(new String[]{"design:flatten", "-X"}, baseDir.toString(), System.out, System.out);
 
-    }
+  }
+
 }

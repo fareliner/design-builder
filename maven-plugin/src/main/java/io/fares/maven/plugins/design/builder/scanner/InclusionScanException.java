@@ -21,13 +21,14 @@ package io.fares.maven.plugins.design.builder.scanner;
 
 public class InclusionScanException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public InclusionScanException(String message) {
-	super(message);
-    }
+  public InclusionScanException(String message) {
+    super(message);
+  }
 
-    public InclusionScanException(String message, Throwable cause) {
-	super(message, cause);
-    }
+  public InclusionScanException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
 }

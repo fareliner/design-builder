@@ -56,7 +56,7 @@
         <xsd:documentation>The currency code that the amount quantity is in.</xsd:documentation>
       </xsd:annotation>
     </xsd:attribute>
-    <xsd:attribute default="2" name="DecimalPlaces" type="xsd:nonNegativeInteger">
+    <xsd:attribute name="DecimalPlaces" type="xsd:nonNegativeInteger" default="2">
       <xsd:annotation>
         <xsd:documentation>The decimal places of the currency used by the amount. Some currencies do not have decimal
           places. In which case, the value must be specified as 0.

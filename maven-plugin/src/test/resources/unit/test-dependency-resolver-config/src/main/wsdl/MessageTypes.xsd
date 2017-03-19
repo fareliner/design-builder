@@ -18,28 +18,29 @@
   ~ under the License.
   -->
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
-	attributeFormDefault="unqualified" targetNamespace="urn:test-flatten-config"
-	xmlns="urn:test-flatten-config">
+<xsd:schema xmlns="urn:test-flatten-config"
+            targetNamespace="urn:test-flatten-config"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-	<xsd:include schemaLocation="BTypes.xsd"/>
-	<xsd:include schemaLocation="DTypes.xsd"/>
-	
-	<xsd:element name="SomeRQ">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="AParam" type="SimpleAType"/>
-				<xsd:element name="BParam" type="SimpleBType"/>
-			</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element>
-	
-	<xsd:element name="SomeRS">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="CParam" type="SimpleCType"/>
-				<xsd:element name="DParam" type="SimpleDType"/>
-			</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element>
+  <xsd:include schemaLocation="BTypes.xsd"/>
+  <xsd:include schemaLocation="DTypes.xsd"/>
+
+  <xsd:element name="SomeRQ">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="AParam" type="SimpleAType"/>
+        <xsd:element name="BParam" type="SimpleBType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="SomeRS">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="CParam" type="SimpleCType"/>
+        <xsd:element name="DParam" type="SimpleDType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
 </xsd:schema>

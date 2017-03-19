@@ -26,64 +26,61 @@ import java.util.Set;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 public class SimpleSourceInclusionScanner {
-    private Set<String> sourceIncludes;
+  private Set<String> sourceIncludes;
 
-    private Set<String> sourceExcludes;
+  private Set<String> sourceExcludes;
 
-    public SimpleSourceInclusionScanner(Set<String> sourceIncludes,
-	    Set<String> sourceExcludes) {
-	this.sourceIncludes = sourceIncludes;
+  public SimpleSourceInclusionScanner(Set<String> sourceIncludes, Set<String> sourceExcludes) {
+    this.sourceIncludes = sourceIncludes;
+    this.sourceExcludes = sourceExcludes;
+  }
 
-	this.sourceExcludes = sourceExcludes;
+  public Set<File> getIncludedSources(File sourceDir)
+    throws InclusionScanException {
+
+    String[] potentialSources = scanForSources(sourceDir, sourceIncludes, sourceExcludes);
+
+    Set<File> matchingSources = new HashSet<File>(potentialSources != null ? potentialSources.length : 0);
+
+    if (potentialSources != null) {
+      for (String potentialSource : potentialSources) {
+        matchingSources.add(new File(sourceDir, potentialSource));
+      }
     }
 
-    public Set<File> getIncludedSources(File sourceDir)
-	    throws InclusionScanException {
+    return matchingSources;
+  }
 
-	String[] potentialSources = scanForSources(sourceDir, sourceIncludes,
-		sourceExcludes);
+  protected String[] scanForSources(File sourceDir, Set<String> sourceIncludes, Set<String> sourceExcludes) {
+    DirectoryScanner ds = new DirectoryScanner();
+    ds.setFollowSymlinks(true);
+    ds.setBasedir(sourceDir);
 
-	Set<File> matchingSources = new HashSet<File>(
-		potentialSources != null ? potentialSources.length : 0);
-
-	if (potentialSources != null) {
-	    for (String potentialSource : potentialSources) {
-		matchingSources.add(new File(sourceDir, potentialSource));
-	    }
-	}
-
-	return matchingSources;
+    String[] includes;
+    if (sourceIncludes.isEmpty()) {
+      includes = new String[0];
+    } else {
+      includes = sourceIncludes
+        .toArray(new String[sourceIncludes.size()]);
     }
 
-    protected String[] scanForSources(File sourceDir,
-	    Set<String> sourceIncludes, Set<String> sourceExcludes) {
-	DirectoryScanner ds = new DirectoryScanner();
-	ds.setFollowSymlinks(true);
-	ds.setBasedir(sourceDir);
+    ds.setIncludes(includes);
 
-	String[] includes;
-	if (sourceIncludes.isEmpty()) {
-	    includes = new String[0];
-	} else {
-	    includes = sourceIncludes
-		    .toArray(new String[sourceIncludes.size()]);
-	}
-
-	ds.setIncludes(includes);
-
-	String[] excludes;
-	if (sourceExcludes.isEmpty()) {
-	    excludes = new String[0];
-	} else {
-	    excludes = sourceExcludes
-		    .toArray(new String[sourceExcludes.size()]);
-	}
-
-	ds.setExcludes(excludes);
-	ds.addDefaultExcludes();
-
-	ds.scan();
-
-	return ds.getIncludedFiles();
+    String[] excludes;
+    if (sourceExcludes.isEmpty()) {
+      excludes = new String[0];
+    } else {
+      excludes = sourceExcludes
+        .toArray(new String[sourceExcludes.size()]);
     }
+
+    ds.setExcludes(excludes);
+    ds.addDefaultExcludes();
+
+    ds.scan();
+
+    return ds.getIncludedFiles();
+
+  }
+
 }
