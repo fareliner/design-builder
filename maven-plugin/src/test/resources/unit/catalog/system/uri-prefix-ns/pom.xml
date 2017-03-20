@@ -21,10 +21,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fares.maven.plugins.unit</groupId>
-  <artifactId>generate-catalog-level-test</artifactId>
+  <artifactId>generate-catalog-basic-test</artifactId>
   <version>1.0.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Unit Test - generate-catalog-0-level-test</name>
+  <name>Unit Test - generate-catalog-basic-test</name>
   <build>
     <plugins>
       <plugin>
@@ -32,12 +32,13 @@
         <artifactId>design-builder-maven-plugin</artifactId>
         <version>@project.version@</version>
         <configuration>
-          <includes>
-            <include>**/*.xsd</include>
-          </includes>
           <verbose>true</verbose>
-          <systemIdPathOffset>1</systemIdPathOffset>
-          <targetCatalogFile>${project.basedir}/lvl-01/cat.xcat</targetCatalogFile>
+          <catalog>
+            <system>
+              <systemId>http://some.domain/common</systemId>
+              <uriPrefix>classpath:/util</uriPrefix>
+            </system>
+          </catalog>
         </configuration>
       </plugin>
     </plugins>

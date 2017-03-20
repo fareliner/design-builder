@@ -22,7 +22,7 @@
   <parent>
     <groupId>io.fares.design.builder</groupId>
     <artifactId>design-builder</artifactId>
-    <version>0.0.13-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>design-builder-parent</artifactId>
@@ -36,7 +36,9 @@
     <maven.test.version>3.3.0</maven.test.version>
     <aether.version>1.0.2.v20150114</aether.version>
     <jlibs.version>2.2.1</jlibs.version>
-    <fast.classpath.scanner.version>2.0.3</fast.classpath.scanner.version>
+    <fast.classpath.scanner.version>2.0.17</fast.classpath.scanner.version>
+    <junit.version>4.12</junit.version>
+    <xmlunit.version>2.3.0</xmlunit.version>
   </properties>
 
   <dependencyManagement>
@@ -96,7 +98,19 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.10</version>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.xmlunit</groupId>
+        <artifactId>xmlunit-core</artifactId>
+        <version>${xmlunit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.xmlunit</groupId>
+        <artifactId>xmlunit-matchers</artifactId>
+        <version>${xmlunit.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

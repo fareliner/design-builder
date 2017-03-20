@@ -19,16 +19,24 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
+import java.io.File;
+import javax.xml.transform.Source;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.File;
+import static org.junit.Assert.*;
+
+import org.xmlunit.builder.Input;
+import org.xmlunit.matchers.CompareMatcher;
 
 import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.plugin.testing.resources.TestResources;
+import org.apache.maven.plugin.MojoExecutionException;
+
 import org.apache.maven.project.MavenProject;
 
 public class GenerateCatalogMojoTest {
@@ -42,45 +50,119 @@ public class GenerateCatalogMojoTest {
   public TestResources resources = new TestResources("src/test/resources/unit", "target/ut/");
 
   @Test
-  public void testGenerateCatalogBasic() throws Exception {
-    File baseDir = resources.getBasedir("generate-catalog-basic-test");
-    MavenProject project = rule.readMavenProject(baseDir);
-    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-    mojo.execute();
+  public void testSystemSuffixBasic() throws Exception {
+    runTest("catalog/systemsuffix/basic");
   }
 
   @Test
-  public void testGenerateCatalogLevel() throws Exception {
-    File baseDir = resources.getBasedir("generate-catalog-level-test");
-    MavenProject project = rule.readMavenProject(baseDir);
-    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-    mojo.execute();
+  public void testSystemSuffixLevelTwo() throws Exception {
+    runTest("catalog/systemsuffix/level-2");
   }
 
   @Test
-  public void testGenerateCatalogZeroLevel() throws Exception {
-    File baseDir = resources.getBasedir("generate-catalog-0-level-test");
-    MavenProject project = rule.readMavenProject(baseDir);
-    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-    mojo.setTargetCatalogFile(new File(mojo.getSourceDirectory(), "lvl-01/catalog.xcat"));
-    mojo.setSystemIdPathOffset(1);
-    mojo.execute();
+  public void testSystemSuffixRelativeTarget() throws Exception {
+    runTest("catalog/systemsuffix/relative-target");
   }
 
   @Test
-  public void testGenerateTestDataTypes() throws Exception {
-    File baseDir = resources.getBasedir("test-data-types");
-    MavenProject project = rule.readMavenProject(baseDir);
-    GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
-    mojo.execute();
+  public void testSystemSuffixLevelZero() throws Exception {
+    runTest("catalog/systemsuffix/level-0", "lvl-01/cat.xcat");
   }
 
   @Test
-  public void testMultiExecution() throws Exception {
-    File baseDir = resources.getBasedir("test-execution-config");
+  public void testSystemSuffixExcludeSchema() throws Exception {
+    runTest("catalog/systemsuffix/exclude-schema");
+  }
+
+  @org.junit.Ignore("Multi Execution test does not work in maven test harness")
+  @Test
+  public void testSystemSuffixMultiExecution() throws Exception {
+    runTest("catalog/systemsuffix/execution-config");
+  }
+
+
+  @Test
+  public void testSystemRewriteBasic() throws Exception {
+    runTest("catalog/rewritesystem/basic");
+  }
+
+  @Test
+  public void testSystemBasic() throws Exception {
+    runTest("catalog/system/basic");
+  }
+
+  @Test
+  public void testSystemMultiple() throws Exception {
+    runTest("catalog/system/multi-files");
+  }
+
+  @Test
+  public void testSystemDefaultSystemId() throws Exception {
+    runTest("catalog/system/default-systemid");
+  }
+
+  @Test(expected = MojoExecutionException.class)
+  public void testSystemNoSystemId() throws Exception {
+    runTest("catalog/system/no-systemid");
+  }
+
+  @Test
+  public void testTargetNamespaceAsUrn() throws Exception {
+    runTest("catalog/system/tns-as-urn");
+  }
+
+  @Test
+  public void testSystemTnsExtracted() throws Exception {
+    runTest("catalog/system/tns-extracted");
+  }
+
+  @Test
+  public void testSystemUriPrefix() throws Exception {
+    runTest("catalog/system/uri-prefix");
+  }
+
+  @Test
+  public void testSystemUriPrefixNamespaceOverride() throws Exception {
+    runTest("catalog/system/uri-prefix-ns");
+  }
+
+  @Test
+  public void testUriBasic() throws Exception {
+    runTest("catalog/uri/basic");
+  }
+
+  @Test
+  public void testUriMultiple() throws Exception {
+    runTest("catalog/uri/multi-files");
+  }
+
+  @Test
+  public void testUriTnsExtracted() throws Exception {
+    runTest("catalog/uri/tns-extracted");
+  }
+
+
+  private void runTest(String projectPath) throws Exception {
+    runTest(projectPath, "catalog.xml");
+  }
+
+
+  private void runTest(String projectPath, String catalogName) throws Exception {
+
+    File baseDir = resources.getBasedir(projectPath);
     MavenProject project = rule.readMavenProject(baseDir);
     GenerateCatalogMojo mojo = (GenerateCatalogMojo) rule.lookupConfiguredMojo(project, "catalog");
     mojo.execute();
+
+    // check catalog file has been created
+    assertTrue("catalog was not generated", (new File(baseDir, catalogName)).exists());
+
+    // check it contains expected values
+    Source actualCatalog = Input.fromFile(mojo.getTargetCatalogFile()).build();
+    Source expectedCatalog = Input.fromFile(new File(baseDir, "expectedCatalog.xml")).build();
+
+    assertThat(actualCatalog, CompareMatcher.isIdenticalTo(expectedCatalog));
+
   }
 
 }

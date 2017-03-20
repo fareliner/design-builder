@@ -60,7 +60,7 @@ public class FlattenImportPathMojoTest {
   /**
    * @throws Exception if any
    */
-  //@Ignore("Needs more work to make the mocking behave.")
+  @org.junit.Ignore("Needs more work to make the mocking behave. See the MavenProjectStub")
   @Test
   public void testDependencyResolver() throws Exception {
 

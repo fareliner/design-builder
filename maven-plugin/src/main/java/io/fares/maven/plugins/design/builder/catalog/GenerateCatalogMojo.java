@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -36,9 +34,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -60,40 +55,60 @@ import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanne
 )
 public class GenerateCatalogMojo extends AbstractMojo {
 
+  /**
+   * Generates a catalog in system suffix format.
+   * https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html#s.systemsuffix
+   */
+  @Parameter
+  private CatalogOption catalog;
+  /**
+   * A reference to the executing maven project.
+   */
   @Parameter(defaultValue = "${project}", required = true, readonly = true)
   private MavenProject project;
-
+  /**
+   * If verbose is set to true it will output more information messages than normal.
+   */
   @Parameter(property = "verbose", defaultValue = "false")
   private boolean verbose;
-
+  /**
+   * Should one have the need to skip execution of the module in a build phase.
+   */
   @Parameter(property = "skip", defaultValue = "false")
   private boolean skip;
-
+  /**
+   * The list of maven project resources.
+   */
   @Parameter(defaultValue = "${project.resources}", required = true, readonly = true)
   private List<Resource> resources;
-
+  /**
+   * The sources directory where the schema files are located.
+   */
   @Parameter(alias = "sourceDirectory", property = "sourceDirectory", defaultValue = "${project.basedir}", required = true)
   private File sourceDirectory;
-
-  @Parameter(alias = "targetCatalogFile", property = "catalog.file", defaultValue = "catalog.xml", required = true)
-  private File targetCatalogFile;
-
   /**
-   * Specifies how much offset the schema file should have to its parent directory. This offset will be used to
-   * populate the systemIdSuffix path depth.
+   * The directory where the schema file will be written to.
    */
-  @Parameter(alias = "systemIdPathOffset", property = "systemid.suffix.offset", defaultValue = "0")
-  private int systemIdPathOffset;
-
   @Parameter(defaultValue = "${project.build.outputDirectory}", required = true, readonly = true)
   private File outputDirectory;
-
+  /**
+   * The set of local schema files to include into the catalog generation.
+   */
   @Parameter
   private Set<String> includes = new HashSet<String>();
-
+  /**
+   * The set of local schema files to exclude from the catalog generation.
+   */
   @Parameter
   private Set<String> excludes = new HashSet<String>();
-
+  /**
+   * The location where the catalog file will be written to.
+   */
+  @Parameter(alias = "targetCatalogFile", property = "catalog.file", defaultValue = "catalog.xml", required = true)
+  private File targetCatalogFile;
+  /**
+   * Transformer used to format the catalog file.
+   */
   private transient Transformer transformer;
 
   public void execute() throws MojoExecutionException {
@@ -135,8 +150,7 @@ public class GenerateCatalogMojo extends AbstractMojo {
     URI catalogLocationURI = catalogTargetDirectory.toURI();
 
     if (getLog().isDebugEnabled() || verbose) {
-      getLog().info(
-        "   - catalog base [" + catalogLocationURI.getPath() + ']');
+      getLog().info("   - catalog base [" + catalogLocationURI.getPath() + ']');
     }
 
     // TODO validate catalog file param
@@ -156,90 +170,15 @@ public class GenerateCatalogMojo extends AbstractMojo {
       Arrays.sort(schemaFiles);
       // endregion
 
-      //region define catalog header
-      DocumentBuilderFactory docFactory = DocumentBuilderFactory
-        .newInstance();
-      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+      CatalogWriter catalogWriter = createCatalogWriter(catalogLocationURI);
 
-      Document doc = docBuilder.newDocument();
-      Element re = doc.createElementNS(
-        "urn:oasis:names:tc:entity:xmlns:xml:catalog", "catalog");
-      doc.appendChild(re);
-
-      Element decDef = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "system");
-      decDef.setAttribute("systemId", "http://www.oasis-open.org/committees/entity/release/1.1/catalog.dtd");
-      decDef.setAttribute("uri", "resource:org/apache/xml/resolver/etc/catalog.dtd");
-      re.appendChild(decDef);
-      // endregion
-
-      for (File schemaFile : schemaFiles) {
-
-        URI schemaURI = schemaFile.getAbsoluteFile().toURI();
-
-        URI schemaLocationURI = schemaURI.getPath().endsWith("/")
-          ? schemaURI.resolve("../")
-          : schemaURI.resolve(".");
-
-        // TODO add some validation to check that the catalog and sources are in the same tree (e.g. cannot create a catalog outside jar for xsds in jar etc.)
-
-        if (getLog().isDebugEnabled() || verbose) {
-          getLog().info(
-            "   - schema [" + schemaURI.getPath()
-              + ']');
-        }
-
-        // calculate natural offset between schema and catalog
-        // int naturalOffset = catalogLocationURI.compareTo(schemaURI);
-
-        URI systemIdSuffixURI = null;
-
-        if (systemIdPathOffset == 0) {
-          systemIdSuffixURI = schemaLocationURI.relativize(schemaURI);
-        } else {
-                    /*
-                     * The systemIdSuffixURI must be offset by systemIdPathOffset relative to the schemaLocationURI. This is
-                     * to ensure the schema can be imported with a parent folder prefix but the catalog file can resolve
-                     * the schema resource relative to itself using the schemaToCatalogRelativeURI.
-                     *
-                     * Example: A schema in a nested path <code>src/main/resources/test-execution-config/GlobalDataTypes.xsd</code>
-                     *          results into the systemIdSuffixURI <code>test-execution-config/GlobalDataTypes.xsd</code>
-                     *
-                     */
-          StringBuilder sb = new StringBuilder();
-          for (int i = 0; i < this.systemIdPathOffset; i++) {
-            sb.append("../");
-          }
-          sb.append('.');
-          systemIdSuffixURI = schemaLocationURI.resolve(sb.toString())
-            .relativize(schemaURI);
-        }
-
-
-        URI schemaToCatalogRelativeURI = catalogLocationURI.relativize(schemaURI);
-
-        // region write schema element
-        Element uriSuffixE = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "systemSuffix");
-        uriSuffixE.setAttribute("systemIdSuffix", systemIdSuffixURI.toString());
-        uriSuffixE.setAttribute("uri", schemaToCatalogRelativeURI.toString());
-        re.appendChild(uriSuffixE);
-        // endregion
-
-        if (getLog().isDebugEnabled() || verbose) {
-          getLog().info(
-            String.format(
-              "add catalog entry: <systemSuffix systemIdSuffix=\"%s\" uri=\"%s\" />",
-              systemIdSuffixURI.toString(),
-              schemaToCatalogRelativeURI.toString()
-            ));
-        }
-
-      }
+      catalogWriter.write(schemaFiles);
 
       if (getLog().isInfoEnabled()) {
         getLog().info("Write catalog to " + targetCatalogFile.getAbsoluteFile().toURI().toString());
       }
 
-      DOMSource source = new DOMSource(doc);
+      DOMSource source = new DOMSource(catalogWriter.getDocument());
       StreamResult result = new StreamResult(targetCatalogFile);
 
       getTransformer().transform(source, result);
@@ -247,15 +186,77 @@ public class GenerateCatalogMojo extends AbstractMojo {
     } catch (InclusionScanException e) {
       throw new MojoExecutionException("Failed to get included files.", e);
     } catch (ParserConfigurationException e) {
-      throw new MojoExecutionException(
-        "Failed to configure the xml builder.", e);
+      throw new MojoExecutionException("Failed to configure the xml builder.", e);
     } catch (TransformerConfigurationException e) {
-      throw new MojoExecutionException(
-        "Failed to configure the xml transformer.", e);
+      throw new MojoExecutionException("Failed to configure the xml transformer.", e);
     } catch (TransformerException e) {
-      throw new MojoExecutionException(
-        "Failed to generate catalog file.", e);
+      throw new MojoExecutionException("Failed to generate catalog file.", e);
     }
+
+  }
+
+
+  /**
+   * Contruct a {@link CatalogWriter} from the mojo configuration.
+   *
+   * @return the catalog writer that will determine which format it is writen to
+   *
+   * @throws MojoExecutionException if anything goes wrong creating the catalog.
+   */
+  private CatalogWriter createCatalogWriter(URI catalogLocation) throws MojoExecutionException, ParserConfigurationException {
+
+    if (this.catalog == null) {
+      throw new MojoExecutionException("No catalog configuration has been provided.");
+    }
+
+    CatalogEntries entries = this.catalog;
+
+    AbstractCatalogWriter result = null;
+
+    int count = 0;
+
+    for (CatalogFormat format : CatalogFormat.values()) {
+      switch (format) {
+        case PUBLIC:
+          // not implemented yet
+          break;
+        case SYSTEM:
+          if (entries.getSystem() != null) {
+            count++;
+            result = new SystemCatalogWriter(entries.getSystem());
+          }
+          break;
+        case URI:
+          if (entries.getUri() != null) {
+            count++;
+            result = new UriCatalogWriter(entries.getUri());
+          }
+          break;
+        case REWRITE_SYSTEM:
+          if (entries.getRewriteSystem() != null) {
+            count++;
+            result = new RewriteSystemCatalogWriter(entries.getRewriteSystem());
+          }
+          break;
+        case SYSTEM_SUFFIX:
+          if (entries.getSystemSuffix() != null) {
+            count++;
+            result = new SystemSuffixCatalogWriter(entries.getSystemSuffix());
+          }
+          break;
+      }
+    }
+
+    if (count == 0) {
+      throw new MojoExecutionException("No catalog format has been provided. Please specify one of [system|rewriteSystem|systemSuffix] in the catalog plugin configuration.");
+    } else if (count > 1) {
+      throw new MojoExecutionException("Only 1 catalog format can be provided at a time. Please review the format plugin configuration.");
+    }
+
+    result.setVerbose(verbose);
+    result.setCatalogLocation(catalogLocation);
+
+    return result;
 
   }
 
@@ -275,10 +276,13 @@ public class GenerateCatalogMojo extends AbstractMojo {
   }
 
   /**
-   * @return a configured xml transformer for use
-   * @throws TransformerConfigurationException
+   * Create a transformer to format the catalog file.
+   *
+   * @return a configured xml transformer
+   *
+   * @throws TransformerConfigurationException thrown when the transformer cannot be created
    */
-  Transformer getTransformer() throws TransformerConfigurationException {
+  private Transformer getTransformer() throws TransformerConfigurationException {
 
     if (this.transformer == null) {
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -306,14 +310,6 @@ public class GenerateCatalogMojo extends AbstractMojo {
 
   public File getSourceDirectory() {
     return sourceDirectory;
-  }
-
-  public int getSystemIdPathOffset() {
-    return systemIdPathOffset;
-  }
-
-  public void setSystemIdPathOffset(int depth) {
-    this.systemIdPathOffset = depth;
   }
 
 }

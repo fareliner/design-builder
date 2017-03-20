@@ -21,54 +21,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fares.maven.plugins.unit</groupId>
-  <artifactId>test-execution-config</artifactId>
+  <artifactId>generate-catalog-basic-test</artifactId>
   <version>1.0.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Unit Test - test-execution-config</name>
-
+  <name>Unit Test - generate-catalog-basic-test</name>
   <build>
     <plugins>
       <plugin>
         <groupId>io.fares.maven.plugins</groupId>
         <artifactId>design-builder-maven-plugin</artifactId>
+        <version>@project.version@</version>
         <configuration>
           <verbose>true</verbose>
+          <catalog>
+            <system/>
+          </catalog>
         </configuration>
-        <executions>
-          <execution>
-            <id>test-01</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>catalog</goal>
-            </goals>
-            <configuration>
-              <targetCatalogFile>${basedir}/test1-catalog.xml</targetCatalogFile>
-              <sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
-              <includes>
-                <include>**/*.xsd</include>
-              </includes>
-              <excludes>
-                <exlude>**/Amount.xsd</exlude>
-              </excludes>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-02</id>
-            <phase>test</phase>
-            <goals>
-              <goal>catalog</goal>
-            </goals>
-            <configuration>
-              <targetCatalogFile>${project.build.outputDirectory}/test2-catalog.xml</targetCatalogFile>
-              <sourceDirectory>${project.build.outputDirectory}</sourceDirectory>
-              <includes>
-                <include>**/*.xsd</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
-
 </project>
