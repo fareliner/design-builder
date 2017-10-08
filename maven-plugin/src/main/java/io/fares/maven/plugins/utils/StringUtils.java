@@ -27,7 +27,7 @@ public class StringUtils {
   /**
    * The empty String {@code ""}.
    */
-  public static final String EMPTY = "";
+  private static final String EMPTY = "";
 
   private static String[] EMPTY_STRING_ARRAY = new String[0];
 
@@ -35,6 +35,7 @@ public class StringUtils {
    * Checks if a (trimmed) String is <code>null</code> or empty.
    *
    * @param string the String to check
+   *
    * @return <code>true</code> if the string is <code>null</code>, or length
    * zero once trimmed.
    */
@@ -42,12 +43,11 @@ public class StringUtils {
     return (string == null || string.trim().length() == 0);
   }
 
-  public static String escapeSpace(String url) {
+  static String escapeSpace(String url) {
     // URLEncoder didn't work.
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for (int i = 0; i < url.length(); i++) {
-      // TODO: not sure if this is the only character that needs to be
-      // escaped.
+      // TODO: not sure if this is the only character that needs to be escaped.
       if (url.charAt(i) == ' ')
         buf.append("%20");
       else
@@ -67,7 +67,7 @@ public class StringUtils {
     if (len == 0) {
       return EMPTY_STRING_ARRAY;
     }
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     int i = 0, start = 0;
     boolean match = false;
     boolean lastMatch = false;
@@ -88,7 +88,7 @@ public class StringUtils {
     if (match || (preserveAllTokens && lastMatch)) {
       list.add(str.substring(start, i));
     }
-    return (String[]) list.toArray(new String[list.size()]);
+    return list.toArray(new String[list.size()]);
   }
 
   public static String join(final List<String> list, final char separator) {

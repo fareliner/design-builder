@@ -52,7 +52,7 @@ public class SystemSuffixCatalogWriter extends FileByFileCatalogWriter {
     // calculate natural offset between schema and catalog
     // int naturalOffset = catalogLocationURI.compareTo(schemaURI);
 
-    URI systemIdSuffixURI = null;
+    URI systemIdSuffixURI;
 
     if (option.getPathOffset() == 0) {
       systemIdSuffixURI = schemaLocationURI.relativize(schemaURI);

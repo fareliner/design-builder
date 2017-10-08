@@ -18,28 +18,9 @@
   ~ under the License.
   -->
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
 
   <xsd:include schemaLocation="../common/GlobalDataTypes.xsd"/>
-
-  <xsd:complexType name="AmountDetailType">
-    <xsd:annotation>
-      <xsd:documentation>Amounts will be priced in a single specified currency.</xsd:documentation>
-    </xsd:annotation>
-    <xsd:sequence>
-      <xsd:element name="BaseAmount" type="CurrencyAmountType" minOccurs="0"/>
-      <xsd:element name="TaxAmount" type="CurrencyAmountType" minOccurs="0"/>
-      <xsd:element name="TotalAmount" type="CurrencyAmountType" minOccurs="0"/>
-      <xsd:element name="CurrencyCode" type="CurrencyCodeType" default="AUD">
-        <xsd:annotation>
-          <xsd:documentation>The currency code for taxable amounts is AUD by default
-            unless otherwise specified. All currency codes are specified in ISO 4217
-            alpha codes.
-          </xsd:documentation>
-        </xsd:annotation>
-      </xsd:element>
-    </xsd:sequence>
-  </xsd:complexType>
 
   <xsd:complexType name="AmountType">
     <xsd:annotation>
