@@ -21,7 +21,6 @@ package io.fares.maven.plugins.design.builder.catalog;
 
 /**
  * Select output to be of type system suffix
- * <p>
  * <pre>
  * {@code
  * <systemSuffix>

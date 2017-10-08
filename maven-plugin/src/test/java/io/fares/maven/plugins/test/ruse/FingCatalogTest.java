@@ -53,7 +53,7 @@ public class FingCatalogTest {
 
     InputStream is = url.openStream();
 
-    assertNotNull("Need to connect succesfully", is);
+    assertNotNull("Need to connect successfully", is);
 
     System.out.println(url.toExternalForm());
 

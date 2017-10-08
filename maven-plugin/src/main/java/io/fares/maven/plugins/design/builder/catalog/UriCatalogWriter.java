@@ -87,7 +87,7 @@ public class UriCatalogWriter extends FileByFileCatalogWriter {
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {
-      log.info("add catalog entry: <system systemId=\"{}\" uri=\"{}\" />", uriName, schemaToCatalogRelativeURI.toString());
+      log.info("add catalog entry: <uri name=\"{}\" uri=\"{}\" />", uriName, schemaToCatalogRelativeURI.toString());
     }
 
   }
