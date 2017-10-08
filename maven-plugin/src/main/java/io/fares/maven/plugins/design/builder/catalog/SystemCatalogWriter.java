@@ -21,6 +21,7 @@ package io.fares.maven.plugins.design.builder.catalog;
 
 import java.net.URI;
 import java.io.File;
+import java.net.URISyntaxException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.w3c.dom.Element;
@@ -77,20 +78,25 @@ public class SystemCatalogWriter extends FileByFileCatalogWriter {
     // endregion
 
     // region construct actual schema uri
-    String uri = null;
+    URI uri;
     if (option.getUriPrefix() != null) {
       String uriPrefix = option.getUriPrefix().replaceAll("/$", "");
-      uri = String.format("%s/%s", uriPrefix, schemaFile.getName());
+      String uriString = String.format("%s/%s", uriPrefix, schemaFile.getName());
+      try {
+        uri = new URI(uriString);
+      } catch (URISyntaxException e) {
+        throw new MojoExecutionException(uriString + " is not a valid uri", e);
+      }
     } else {
       URI schemaURI = schemaFile.getAbsoluteFile().toURI();
-      uri = getCatalogLocation().relativize(schemaURI).toString();
+      uri = getCatalogLocation().relativize(schemaURI);
     }
     // endregion
 
     // region write schema element
     Element uriSuffixE = getDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "system");
     uriSuffixE.setAttribute("systemId", systemId);
-    uriSuffixE.setAttribute("uri", uri);
+    uriSuffixE.setAttribute("uri", uri.toASCIIString());
     getElement().appendChild(uriSuffixE);
     // endregion
 
