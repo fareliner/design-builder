@@ -56,8 +56,8 @@ import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanne
 public class GenerateCatalogMojo extends AbstractMojo {
 
   /**
-   * Generates a catalog in system suffix format.
-   * https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html#s.systemsuffix
+   * Generates a catalog in multiple formats.
+   * https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html
    */
   @Parameter
   private CatalogOption catalog;
@@ -218,7 +218,10 @@ public class GenerateCatalogMojo extends AbstractMojo {
     for (CatalogFormat format : CatalogFormat.values()) {
       switch (format) {
         case PUBLIC:
-          // not implemented yet
+          if (entries.getPublic() != null) {
+            count++;
+            result = new PublicCatalogWriter(entries.getPublic());
+          }
           break;
         case SYSTEM:
           if (entries.getSystem() != null) {
@@ -248,7 +251,7 @@ public class GenerateCatalogMojo extends AbstractMojo {
     }
 
     if (count == 0) {
-      throw new MojoExecutionException("No catalog format has been provided. Please specify one of [system|rewriteSystem|systemSuffix] in the catalog plugin configuration.");
+      throw new MojoExecutionException("No catalog format has been provided. Please specify one of [system|rewriteSystem|systemSuffix|uri|public] in the catalog plugin configuration.");
     } else if (count > 1) {
       throw new MojoExecutionException("Only 1 catalog format can be provided at a time. Please review the format plugin configuration.");
     }

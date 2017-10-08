@@ -19,6 +19,8 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
+import org.codehaus.plexus.component.annotations.Requirement;
+
 abstract class CatalogEntries {
 
   private SystemSuffixEntry systemSuffix;
@@ -28,6 +30,9 @@ abstract class CatalogEntries {
   private SystemEntry system;
 
   private UriEntry uri;
+
+  @Requirement(hint = "public")
+  private PublicEntry publicOption;
 
   public SystemSuffixEntry getSystemSuffix() {
     return systemSuffix;
@@ -59,6 +64,14 @@ abstract class CatalogEntries {
 
   public void setUri(UriEntry uri) {
     this.uri = uri;
+  }
+
+  public PublicEntry getPublic() {
+    return publicOption;
+  }
+
+  public void setPublic(PublicEntry publicOption) {
+    this.publicOption = publicOption;
   }
 
 }

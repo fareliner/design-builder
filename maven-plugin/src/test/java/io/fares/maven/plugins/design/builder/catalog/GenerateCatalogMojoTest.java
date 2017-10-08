@@ -141,6 +141,41 @@ public class GenerateCatalogMojoTest {
     runTest("catalog/uri/tns-extracted");
   }
 
+  @Test
+  public void testPublicBasic() throws Exception {
+    runTest("catalog/public/basic");
+  }
+
+  @Test
+  public void testPublicIdOverride() throws Exception {
+    runTest("catalog/public/override-pid");
+  }
+
+  @Test
+  public void testPublicSepUrnDefaultAndAppend() throws Exception {
+    runTest("catalog/public/urn-append");
+  }
+
+  @Test
+  public void testPublicSepOverrideWithUrnAndAppend() throws Exception {
+    runTest("catalog/public/override-sep-urn-append");
+  }
+
+  @Test
+  public void testPublicIdAppendFileOverride() throws Exception {
+    runTest("catalog/public/override-pid-append");
+  }
+
+  @Test
+  public void testPublicSeparatorOverrideAndAppend() throws Exception {
+    runTest("catalog/public/override-sep-append");
+  }
+
+  @Test
+  public void testPublicPublicIdSeparatorOverrideAndAppend() throws Exception {
+    runTest("catalog/public/override-pid-sep-append");
+  }
+
 
   private void runTest(String projectPath) throws Exception {
     runTest(projectPath, "catalog.xml");
