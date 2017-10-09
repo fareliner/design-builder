@@ -129,7 +129,7 @@
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <useReleaseProfile>false</useReleaseProfile>
-            <releaseProfiles>validate,release</releaseProfiles>
+            <releaseProfiles>release</releaseProfiles>
           </configuration>
         </plugin>
         <!-- ensure javadocs are attached -->
