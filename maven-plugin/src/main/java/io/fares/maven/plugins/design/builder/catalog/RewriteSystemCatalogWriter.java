@@ -42,13 +42,13 @@ public class RewriteSystemCatalogWriter extends AbstractCatalogWriter {
   }
 
   @Override
-  public void write(File... schemaFiles) throws MojoExecutionException {
+  public void write(Element catalogElement, File... schemaFiles) throws MojoExecutionException {
 
     // region write schema element
-    Element uriSuffixE = getDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "rewriteSystem");
+    Element uriSuffixE = catalogElement.getOwnerDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "rewriteSystem");
     uriSuffixE.setAttribute("systemIdStartString", option.getSystemIdStartString());
     uriSuffixE.setAttribute("rewritePrefix", option.getRewritePrefix());
-    getElement().appendChild(uriSuffixE);
+    catalogElement.appendChild(uriSuffixE);
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {

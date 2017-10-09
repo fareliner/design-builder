@@ -35,7 +35,7 @@ public class SystemSuffixCatalogWriter extends FileByFileCatalogWriter {
   }
 
   @Override
-  public void doWrite(File schemaFile) {
+  public void doWrite(Element catalogElement, File schemaFile) {
 
     URI schemaURI = schemaFile.getAbsoluteFile().toURI();
 
@@ -78,10 +78,10 @@ public class SystemSuffixCatalogWriter extends FileByFileCatalogWriter {
     URI schemaToCatalogRelativeURI = getCatalogLocation().relativize(schemaURI);
 
     // region write schema element
-    Element uriSuffixE = getDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "systemSuffix");
+    Element uriSuffixE = catalogElement.getOwnerDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "systemSuffix");
     uriSuffixE.setAttribute("systemIdSuffix", systemIdSuffixURI.toString());
     uriSuffixE.setAttribute("uri", schemaToCatalogRelativeURI.toString());
-    getElement().appendChild(uriSuffixE);
+    catalogElement.appendChild(uriSuffixE);
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {

@@ -21,13 +21,12 @@ package io.fares.maven.plugins.design.builder.catalog;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import java.io.File;
 
 public interface CatalogWriter {
 
-  void write(File... schemaFiles) throws MojoExecutionException;
-
-  Document getDocument();
+  void write(Element catalogElement, File... schemaFiles) throws MojoExecutionException;
 
 }

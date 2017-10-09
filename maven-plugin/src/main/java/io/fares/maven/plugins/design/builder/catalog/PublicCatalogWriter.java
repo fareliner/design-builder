@@ -40,7 +40,7 @@ public class PublicCatalogWriter extends FileByFileCatalogWriter {
   }
 
   @Override
-  protected void doWrite(File schemaFile) throws MojoExecutionException {
+  protected void doWrite(Element catalogElement, File schemaFile) throws MojoExecutionException {
 
     // region construct publicId
     String targetNameSpace = getNamespaceFromSchema(schemaFile);
@@ -89,10 +89,10 @@ public class PublicCatalogWriter extends FileByFileCatalogWriter {
     URI schemaToCatalogRelativeURI = getCatalogLocation().relativize(schemaURI);
 
     // region write schema element
-    Element uriSuffixE = getDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "public");
+    Element uriSuffixE = catalogElement.getOwnerDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "public");
     uriSuffixE.setAttribute("publicId", publicId);
     uriSuffixE.setAttribute("uri", schemaToCatalogRelativeURI.toString());
-    getElement().appendChild(uriSuffixE);
+    catalogElement.appendChild(uriSuffixE);
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {

@@ -49,21 +49,8 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
   private boolean verbose = false;
 
   private URI catalogLocation;
-  private Element rootElement;
-  private Document doc;
 
   AbstractCatalogWriter() throws ParserConfigurationException {
-    DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-    doc = docBuilder.newDocument();
-    rootElement = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "catalog");
-    doc.appendChild(rootElement);
-    //region define catalog header
-//    Element catDTD = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "system");
-//    catDTD.setAttribute("systemId", "http://www.oasis-open.org/committees/entity/release/1.1/catalog.dtd");
-//    catDTD.setAttribute("uri", "resource:org/apache/xml/resolver/etc/catalog.dtd");
-//    rootElement.appendChild(catDTD);
-    // endregion
   }
 
   AbstractCatalogWriter(URI catalogLocation) throws ParserConfigurationException {
@@ -72,15 +59,7 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
   }
 
   @Override
-  public abstract void write(File... schemaFiles) throws MojoExecutionException;
-
-  protected Element getElement() {
-    return this.rootElement;
-  }
-
-  public Document getDocument() {
-    return this.doc;
-  }
+  public abstract void write(Element catalogElement, File... schemaFiles) throws MojoExecutionException;
 
   public URI getCatalogLocation() {
     return catalogLocation;
@@ -90,6 +69,12 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     this.catalogLocation = catalogLocation;
   }
 
+  public AbstractCatalogWriter withCatalogLocation(URI catalogLocation) {
+    setCatalogLocation(catalogLocation);
+    return this;
+  }
+
+
   public boolean isVerbose() {
     return verbose;
   }
@@ -98,6 +83,15 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     this.verbose = verbose;
   }
 
+  public CatalogWriter withVerbose(boolean verbose) {
+    setVerbose(verbose);
+    return this;
+  }
+
+  public CatalogWriter verbose() {
+    setVerbose(true);
+    return this;
+  }
 
   protected String getNamespaceFromSchema(File schemaFile) throws MojoExecutionException {
 

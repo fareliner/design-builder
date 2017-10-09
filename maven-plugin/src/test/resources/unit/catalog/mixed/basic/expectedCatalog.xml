@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+  <public publicId="http://test.internal" uri="GlobalDataTypes.xsd"/>
+  <system systemId="http://test.internal/GlobalDataTypes.xsd" uri="GlobalDataTypes.xsd"/>
+</catalog>

@@ -21,11 +21,10 @@ package io.fares.maven.plugins.design.builder.catalog;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -46,6 +45,8 @@ import org.apache.maven.project.MavenProject;
 
 import io.fares.maven.plugins.design.builder.scanner.InclusionScanException;
 import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanner;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 @Mojo(
   name = "catalog",
@@ -116,6 +117,11 @@ public class GenerateCatalogMojo extends AbstractMojo {
     if (skip)
       return;
 
+    // validate we got something to do
+    if (this.catalog == null) {
+      throw new MojoExecutionException("No catalog configuration has been provided.");
+    }
+
     // Not sure if this is the way to go in a standard maven build. Why does
     // this directory not exist in a resources cycle?
     if (!outputDirectory.exists()) {
@@ -144,7 +150,9 @@ public class GenerateCatalogMojo extends AbstractMojo {
     // validate target catalog file path
     File catalogTargetDirectory = targetCatalogFile.getParentFile();
     if (!catalogTargetDirectory.exists()) {
-      catalogTargetDirectory.mkdirs();
+      if (!catalogTargetDirectory.mkdirs()) {
+        throw new MojoExecutionException("Could not create target dir " + catalogTargetDirectory.getAbsolutePath());
+      }
     }
 
     URI catalogLocationURI = catalogTargetDirectory.toURI();
@@ -170,18 +178,40 @@ public class GenerateCatalogMojo extends AbstractMojo {
       Arrays.sort(schemaFiles);
       // endregion
 
-      CatalogWriter catalogWriter = createCatalogWriter(catalogLocationURI);
+      //region construct the catalog (also check if the catalog has a prefer system/public flag)
+      DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+      Document doc = docBuilder.newDocument();
+      Element catalogElement = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "catalog");
+      doc.appendChild(catalogElement);
+//    Element catDTD = doc.createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "system");
+//    catDTD.setAttribute("systemId", "http://www.oasis-open.org/committees/entity/release/1.1/catalog.dtd");
+//    catDTD.setAttribute("uri", "resource:org/apache/xml/resolver/etc/catalog.dtd");
+//    rootElement.appendChild(catDTD);
 
-      catalogWriter.write(schemaFiles);
+      // if a preference is specified, we'll add it
+      if (this.catalog.getPrefer() != null) {
+        CatalogPreference prefer = CatalogPreference.fromValue(this.catalog.getPrefer());
+        catalogElement.setAttribute("prefer", prefer.value());
+      }
+      // endregion
 
+      // region write entries to the catalog
+      List<CatalogWriter> catalogWriters = createCatalogWriters(catalogLocationURI);
+      for (CatalogWriter writer : catalogWriters) {
+        writer.write(catalogElement, schemaFiles);
+      }
+      // endregion
+
+      // region write catalog
       if (getLog().isInfoEnabled()) {
         getLog().info("Write catalog to " + targetCatalogFile.getAbsoluteFile().toURI().toString());
       }
 
-      DOMSource source = new DOMSource(catalogWriter.getDocument());
+      DOMSource source = new DOMSource(doc);
       StreamResult result = new StreamResult(targetCatalogFile);
-
       getTransformer().transform(source, result);
+      //endregion
 
     } catch (InclusionScanException e) {
       throw new MojoExecutionException("Failed to get included files.", e);
@@ -203,63 +233,58 @@ public class GenerateCatalogMojo extends AbstractMojo {
    *
    * @throws MojoExecutionException if anything goes wrong creating the catalog.
    */
-  private CatalogWriter createCatalogWriter(URI catalogLocation) throws MojoExecutionException, ParserConfigurationException {
-
-    if (this.catalog == null) {
-      throw new MojoExecutionException("No catalog configuration has been provided.");
-    }
+  private List<CatalogWriter> createCatalogWriters(URI catalogLocation) throws MojoExecutionException, ParserConfigurationException {
 
     CatalogEntries entries = this.catalog;
 
-    AbstractCatalogWriter result = null;
-
-    int count = 0;
+    List<CatalogWriter> writers = new LinkedList<>();
 
     for (CatalogFormat format : CatalogFormat.values()) {
       switch (format) {
         case PUBLIC:
           if (entries.getPublic() != null) {
-            count++;
-            result = new PublicCatalogWriter(entries.getPublic());
+            writers.add(new PublicCatalogWriter(entries.getPublic())
+              .withCatalogLocation(catalogLocation)
+              .withVerbose(verbose));
           }
           break;
         case SYSTEM:
           if (entries.getSystem() != null) {
-            count++;
-            result = new SystemCatalogWriter(entries.getSystem());
+            writers.add(new SystemCatalogWriter(entries.getSystem())
+              .withCatalogLocation(catalogLocation)
+              .withVerbose(verbose));
           }
           break;
         case URI:
           if (entries.getUri() != null) {
-            count++;
-            result = new UriCatalogWriter(entries.getUri());
+            writers.add(new UriCatalogWriter(entries.getUri())
+              .withCatalogLocation(catalogLocation)
+              .withVerbose(verbose));
           }
           break;
         case REWRITE_SYSTEM:
           if (entries.getRewriteSystem() != null) {
-            count++;
-            result = new RewriteSystemCatalogWriter(entries.getRewriteSystem());
+            writers.add(new RewriteSystemCatalogWriter(entries.getRewriteSystem())
+              .withCatalogLocation(catalogLocation)
+              .withVerbose(verbose));
           }
           break;
         case SYSTEM_SUFFIX:
           if (entries.getSystemSuffix() != null) {
-            count++;
-            result = new SystemSuffixCatalogWriter(entries.getSystemSuffix());
+            writers.add(new SystemSuffixCatalogWriter(entries.getSystemSuffix())
+              .withCatalogLocation(catalogLocation)
+              .withVerbose(verbose));
           }
           break;
       }
     }
 
-    if (count == 0) {
+    if (writers.size() == 0) {
       throw new MojoExecutionException("No catalog format has been provided. Please specify one of [system|rewriteSystem|systemSuffix|uri|public] in the catalog plugin configuration.");
-    } else if (count > 1) {
-      throw new MojoExecutionException("Only 1 catalog format can be provided at a time. Please review the format plugin configuration.");
     }
 
-    result.setVerbose(verbose);
-    result.setCatalogLocation(catalogLocation);
 
-    return result;
+    return writers;
 
   }
 

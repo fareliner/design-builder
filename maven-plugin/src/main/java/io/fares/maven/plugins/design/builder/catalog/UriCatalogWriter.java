@@ -49,7 +49,7 @@ public class UriCatalogWriter extends FileByFileCatalogWriter {
   }
 
   @Override
-  protected void doWrite(File schemaFile) throws MojoExecutionException {
+  protected void doWrite(Element catalogElement, File schemaFile) throws MojoExecutionException {
 
     // region construct uri name
     // TODO if option.systemId is null we should just get the target namespace from each schema file (and fail if neither is provided)
@@ -80,10 +80,10 @@ public class UriCatalogWriter extends FileByFileCatalogWriter {
     URI schemaToCatalogRelativeURI = getCatalogLocation().relativize(schemaURI);
 
     // region write schema element
-    Element uriSuffixE = getDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "uri");
+    Element uriSuffixE = catalogElement.getOwnerDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "uri");
     uriSuffixE.setAttribute("name", uriName);
     uriSuffixE.setAttribute("uri", schemaToCatalogRelativeURI.toString());
-    getElement().appendChild(uriSuffixE);
+    catalogElement.appendChild(uriSuffixE);
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {

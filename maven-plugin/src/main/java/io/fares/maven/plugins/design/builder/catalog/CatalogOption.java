@@ -24,13 +24,14 @@ package io.fares.maven.plugins.design.builder.catalog;
  */
 public class CatalogOption extends CatalogEntries {
 
-  private CatalogGroup group;
+  private String prefer;
 
-  public CatalogGroup getGroup() {
-    return group;
+  public String getPrefer() {
+    return prefer;
   }
 
-  public void setGroup(CatalogGroup group) {
-    this.group = group;
+  public void setPrefer(String prefer) {
+    this.prefer = prefer;
   }
+
 }

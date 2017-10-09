@@ -20,6 +20,7 @@
 package io.fares.maven.plugins.design.builder.catalog;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.w3c.dom.Element;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
@@ -34,12 +35,12 @@ public abstract class FileByFileCatalogWriter extends AbstractCatalogWriter {
     super(catalogLocation);
   }
 
-  protected abstract void doWrite(File schema) throws MojoExecutionException;
+  protected abstract void doWrite(Element catalogElement, File schema) throws MojoExecutionException;
 
   @Override
-  public void write(File... schemaFiles) throws MojoExecutionException {
+  public void write(Element catalogElement, File... schemaFiles) throws MojoExecutionException {
     for (File schemaFile : schemaFiles) {
-      doWrite(schemaFile);
+      doWrite(catalogElement, schemaFile);
     }
   }
 

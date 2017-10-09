@@ -177,6 +177,11 @@ public class GenerateCatalogMojoTest {
   }
 
 
+  @Test
+  public void testMulti() throws Exception {
+    runTest("catalog/mixed/basic");
+  }
+
   private void runTest(String projectPath) throws Exception {
     runTest(projectPath, "catalog.xml");
   }
