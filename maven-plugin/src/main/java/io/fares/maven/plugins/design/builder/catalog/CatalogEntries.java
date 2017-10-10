@@ -19,58 +19,55 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
-import org.codehaus.plexus.component.annotations.Requirement;
-
 abstract class CatalogEntries {
 
-  private SystemSuffixEntry systemSuffix;
+  private SystemSuffixOption systemSuffix;
 
-  private RewriteSystemEntry rewriteSystem;
+  private RewriteSystemOption rewriteSystem;
 
-  private SystemEntry system;
+  private SystemOption system;
 
-  private UriEntry uri;
+  private UriOption uri;
 
-  @Requirement(hint = "public")
-  private PublicEntry publicOption;
+  private PublicOption publicOption;
 
-  public SystemSuffixEntry getSystemSuffix() {
+  public SystemSuffixOption getSystemSuffix() {
     return systemSuffix;
   }
 
-  public void setSystemSuffix(SystemSuffixEntry systemSuffix) {
+  public void setSystemSuffix(SystemSuffixOption systemSuffix) {
     this.systemSuffix = systemSuffix;
   }
 
-  public RewriteSystemEntry getRewriteSystem() {
+  public RewriteSystemOption getRewriteSystem() {
     return rewriteSystem;
   }
 
-  public void setRewriteSystem(RewriteSystemEntry rewriteSystem) {
+  public void setRewriteSystem(RewriteSystemOption rewriteSystem) {
     this.rewriteSystem = rewriteSystem;
   }
 
-  public SystemEntry getSystem() {
+  public SystemOption getSystem() {
     return system;
   }
 
-  public void setSystem(SystemEntry system) {
+  public void setSystem(SystemOption system) {
     this.system = system;
   }
 
-  public UriEntry getUri() {
+  public UriOption getUri() {
     return uri;
   }
 
-  public void setUri(UriEntry uri) {
+  public void setUri(UriOption uri) {
     this.uri = uri;
   }
 
-  public PublicEntry getPublic() {
+  public PublicOption getPublic() {
     return publicOption;
   }
 
-  public void setPublic(PublicEntry publicOption) {
+  public void setPublic(PublicOption publicOption) {
     this.publicOption = publicOption;
   }
 

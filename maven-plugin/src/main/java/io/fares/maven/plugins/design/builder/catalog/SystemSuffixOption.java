@@ -29,7 +29,7 @@ package io.fares.maven.plugins.design.builder.catalog;
  * </pre>
  * }
  */
-public class SystemSuffixEntry {
+public class SystemSuffixOption {
 
   private int pathOffset = 0;
 

@@ -34,7 +34,9 @@
         <configuration>
           <verbose>true</verbose>
           <catalog>
-            <uri/>
+            <uri>
+              <appendSchemaFile>true</appendSchemaFile>
+            </uri>
           </catalog>
         </configuration>
       </plugin>

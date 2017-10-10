@@ -19,7 +19,7 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
-public class RewriteSystemEntry {
+public class RewriteSystemOption {
 
   private String systemIdStartString;
 

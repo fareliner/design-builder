@@ -36,7 +36,9 @@
           <catalog>
             <prefer>public</prefer>
             <public/>
-            <system/>
+            <system>
+              <appendSchemaFile>true</appendSchemaFile>
+            </system>
           </catalog>
         </configuration>
       </plugin>

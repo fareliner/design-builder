@@ -23,15 +23,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
@@ -93,7 +91,8 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     return this;
   }
 
-  protected String getNamespaceFromSchema(File schemaFile) throws MojoExecutionException {
+  @SuppressWarnings("unchecked")
+  private String getNamespaceFromSchema(File schemaFile) throws MojoExecutionException {
 
     XMLInputFactory staxFactory = XMLInputFactory.newInstance();
 
@@ -125,7 +124,7 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
 
   }
 
-  protected String guessSeparatorFromUri(String scheme) {
+  private String guessSeparatorFromUri(String scheme) {
 
     String separator = "/";
 
@@ -142,6 +141,67 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     }
 
     return separator;
+
+  }
+
+  URI constructUri(AbstractOption option, File schemaFile) throws MojoExecutionException {
+    URI uri;
+    if (option.getUriPrefix() != null) {
+      String uriPrefix = option.getUriPrefix().replaceAll("/$", "");
+      String uriString = String.format("%s/%s", uriPrefix, schemaFile.getName());
+      try {
+        uri = new URI(uriString);
+      } catch (URISyntaxException e) {
+        throw new MojoExecutionException(uriString + " is not a valid uri", e);
+      }
+    } else {
+      URI schemaURI = schemaFile.getAbsoluteFile().toURI();
+      uri = getCatalogLocation().relativize(schemaURI);
+    }
+
+    return uri;
+  }
+
+  String constructEntityId(AbstractOption option, File schemaFile) throws MojoExecutionException {
+
+    // region construct entityId
+    String targetNameSpace = getNamespaceFromSchema(schemaFile);
+
+    String entityId;
+
+    if (option.getEntityId() != null) {
+      entityId = option.getEntityId();
+    } else if (option.getEntityId() == null && targetNameSpace != null) {
+      entityId = targetNameSpace;
+    } else if (option.getDefaultEntityId() != null) {
+      entityId = option.getDefaultEntityId();
+    } else {
+      throw new MojoExecutionException("Schema file " + schemaFile.getName() + " does not contain a targetNamespace. " +
+        "Please either add a targetNamespace to the schema or configure the publicId option in the maven plugin configuration.");
+    }
+    // endregion
+
+    // region append if required
+    // now work out if and how to append the schema name to that entityId if configured
+    if (option.isAppendSchemaFile()) {
+      String separator = option.getAppendSeparator();
+      if (separator == null) {
+        separator = guessSeparatorFromUri(entityId);
+      }
+      // trim trailing separator off entityId just in case
+      if (entityId.endsWith(separator)) {
+        String patterns = separator
+          .replace("/", "\\/")
+          .replace("[", "\\[")
+          .replace("]", "\\]");
+        entityId = entityId.replaceAll(patterns + "$", "");
+      }
+      String schemaFileName = schemaFile.getName();
+      entityId = entityId + separator + schemaFileName;
+    }
+    // endregion
+
+    return entityId;
 
   }
 

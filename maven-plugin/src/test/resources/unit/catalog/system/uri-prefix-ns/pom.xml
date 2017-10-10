@@ -36,6 +36,7 @@
           <catalog>
             <system>
               <systemId>http://some.domain/common</systemId>
+              <appendSchemaFile>true</appendSchemaFile>
               <uriPrefix>classpath:/util</uriPrefix>
             </system>
           </catalog>

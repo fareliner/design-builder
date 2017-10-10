@@ -30,13 +30,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 public class RewriteSystemCatalogWriter extends AbstractCatalogWriter {
 
-  private RewriteSystemEntry option;
+  private RewriteSystemOption option;
 
-  RewriteSystemCatalogWriter(RewriteSystemEntry option) throws ParserConfigurationException {
+  RewriteSystemCatalogWriter(RewriteSystemOption option) throws ParserConfigurationException {
     this.option = option;
   }
 
-  RewriteSystemCatalogWriter(RewriteSystemEntry option, URI catalogLocation) throws ParserConfigurationException {
+  RewriteSystemCatalogWriter(RewriteSystemOption option, URI catalogLocation) throws ParserConfigurationException {
     super(catalogLocation);
     this.option = option;
   }

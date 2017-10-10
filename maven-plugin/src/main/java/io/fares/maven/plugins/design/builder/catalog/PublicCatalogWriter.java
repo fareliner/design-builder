@@ -28,13 +28,13 @@ import java.net.URI;
 
 public class PublicCatalogWriter extends FileByFileCatalogWriter {
 
-  private PublicEntry option;
+  private PublicOption option;
 
-  PublicCatalogWriter(PublicEntry option) throws ParserConfigurationException {
+  PublicCatalogWriter(PublicOption option) throws ParserConfigurationException {
     this.option = option;
   }
 
-  PublicCatalogWriter(PublicEntry option, URI catalogLocation) throws ParserConfigurationException {
+  PublicCatalogWriter(PublicOption option, URI catalogLocation) throws ParserConfigurationException {
     super(catalogLocation);
     this.option = option;
   }
@@ -42,61 +42,21 @@ public class PublicCatalogWriter extends FileByFileCatalogWriter {
   @Override
   protected void doWrite(Element catalogElement, File schemaFile) throws MojoExecutionException {
 
-    // region construct publicId
-    String targetNameSpace = getNamespaceFromSchema(schemaFile);
+    // construct publicId
+   String publicId = constructEntityId(option, schemaFile);
 
-    String publicId;
-
-    if (option.getPublicId() != null) {
-      publicId = option.getPublicId();
-    } else if (option.getPublicId() == null && targetNameSpace != null) {
-      // tns is used as publicId
-      publicId = targetNameSpace;
-    } else {
-      throw new MojoExecutionException("Schema file " + schemaFile.getName() + " does not contain a targetNamespace. " +
-        "Please either add a targetNamespace to the schema or configure the publicId option in the maven plugin configuration.");
-    }
-    // endregion
-
-    // region append if required
-    char appendSeparator = option.getAppendSeparator();
-
-    if (option.isAppendSchemaFile()) {
-      // if we append and the separator was not overridden we swap for urn separator
-      if (option.getAppendSeparator() == PublicEntry.DEFAULT_SEPARATOR) {
-        int schemeIndex = publicId.indexOf(':');
-        if (schemeIndex > 0) {
-          String scheme = publicId.substring(0, schemeIndex);
-          switch (scheme) {
-            case "urn":
-              appendSeparator = ':';
-              break;
-            default:
-              break;
-          }
-        }
-      }
-      // trim trailing spacer just in case
-      publicId = publicId.replaceAll(appendSeparator + "$", "");
-      String schemaFileName = schemaFile.getName();
-      publicId = publicId + appendSeparator + schemaFileName;
-
-    }
-    // endregion
-
-    URI schemaURI = schemaFile.getAbsoluteFile().toURI();
-
-    URI schemaToCatalogRelativeURI = getCatalogLocation().relativize(schemaURI);
+    // construct actual schema uri
+    URI uri = constructUri(option, schemaFile);
 
     // region write schema element
     Element uriSuffixE = catalogElement.getOwnerDocument().createElementNS("urn:oasis:names:tc:entity:xmlns:xml:catalog", "public");
     uriSuffixE.setAttribute("publicId", publicId);
-    uriSuffixE.setAttribute("uri", schemaToCatalogRelativeURI.toString());
+    uriSuffixE.setAttribute("uri", uri.toASCIIString());
     catalogElement.appendChild(uriSuffixE);
     // endregion
 
     if (log.isDebugEnabled() || isVerbose()) {
-      log.info("add catalog entry: <public publicId=\"{}\" uri=\"{}\" />", publicId, schemaToCatalogRelativeURI.toString());
+      log.info("add catalog entry: <public publicId=\"{}\" uri=\"{}\" />", publicId, uri.toASCIIString());
     }
 
   }

@@ -28,9 +28,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class SystemSuffixCatalogWriter extends FileByFileCatalogWriter {
 
-  private SystemSuffixEntry option;
+  private SystemSuffixOption option;
 
-  SystemSuffixCatalogWriter(SystemSuffixEntry option) throws ParserConfigurationException {
+  SystemSuffixCatalogWriter(SystemSuffixOption option) throws ParserConfigurationException {
     this.option = option;
   }
 

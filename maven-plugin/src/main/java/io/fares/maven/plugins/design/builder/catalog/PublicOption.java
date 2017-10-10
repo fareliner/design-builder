@@ -48,26 +48,13 @@ package io.fares.maven.plugins.design.builder.catalog;
  *
  * @see <a href="https://www.oasis-open.org/committees/download.php/14809/xml-catalogs.html#s.public">XML Catalogs OASIS Standard - public Element</a>
  */
-public class PublicEntry {
-
-  static final char DEFAULT_SEPARATOR = '/';
+public class PublicOption extends AbstractOption {
 
   /**
    * The value used as the publicId. If null, the schema <code>targetNamespace</code> is used. Should the schema be a chameleon schema,
    * the mojo fill fail given it is impossible to create a publicId if no concrete value is provided.
    */
   private String publicId;
-
-  /**
-   * This character is appended to the {@link #publicId} if the {@link #appendSchemaFile} property is true.
-   */
-  private char appendSeparator = DEFAULT_SEPARATOR;
-
-  /**
-   * When this setting is true, the file name of the resource is appended to the {@link #publicId} element
-   * using the {@link #appendSeparator}.
-   */
-  private boolean appendSchemaFile = false;
 
   public String getPublicId() {
     return publicId;
@@ -77,20 +64,14 @@ public class PublicEntry {
     this.publicId = publicId;
   }
 
-  public char getAppendSeparator() {
-    return appendSeparator;
+  @Override
+  String getEntityId() {
+    return getPublicId();
   }
 
-  public void setAppendSeparator(char separator) {
-    this.appendSeparator = separator;
-  }
-
-  public boolean isAppendSchemaFile() {
-    return appendSchemaFile;
-  }
-
-  public void setAppendSchemaFile(boolean append) {
-    this.appendSchemaFile = append;
+  @Override
+  String getDefaultEntityId() {
+    return null;
   }
 
 }

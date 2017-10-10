@@ -36,6 +36,7 @@
           <catalog>
             <uri>
               <namePrefix>http://domain.internal/types/</namePrefix>
+              <appendSchemaFile>true</appendSchemaFile>
             </uri>
           </catalog>
         </configuration>

@@ -36,6 +36,7 @@
           <catalog>
             <system>
               <uriPrefix>classpath:/META-INF/</uriPrefix>
+              <appendSchemaFile>true</appendSchemaFile>
             </system>
           </catalog>
         </configuration>

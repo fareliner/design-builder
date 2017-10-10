@@ -36,6 +36,7 @@
           <catalog>
             <system>
               <systemId>http://domain.internal/types/</systemId>
+              <appendSchemaFile>true</appendSchemaFile>
             </system>
           </catalog>
         </configuration>

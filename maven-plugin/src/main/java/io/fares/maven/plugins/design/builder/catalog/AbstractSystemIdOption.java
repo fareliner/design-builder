@@ -19,7 +19,7 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
-public abstract class AbstractSystemIdOption {
+public abstract class AbstractSystemIdOption extends AbstractOption {
 
   private String systemId;
 
@@ -29,6 +29,11 @@ public abstract class AbstractSystemIdOption {
 
   public void setSystemId(String systemId) {
     this.systemId = systemId;
+  }
+
+  @Override
+  String getEntityId() {
+    return getSystemId();
   }
 
 }

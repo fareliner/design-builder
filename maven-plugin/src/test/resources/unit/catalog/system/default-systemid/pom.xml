@@ -36,6 +36,7 @@
           <catalog>
             <system>
               <defaultSystemId>urn:default</defaultSystemId>
+              <appendSchemaFile>true</appendSchemaFile>
             </system>
           </catalog>
         </configuration>

@@ -19,14 +19,9 @@
 
 package io.fares.maven.plugins.design.builder.catalog;
 
-public class UriEntry {
+public class UriOption extends AbstractOption {
 
   private String namePrefix;
-
-  /**
-   * When this is set, the namePrefix element is used to append any
-   */
-  private boolean appendSchemaFile = true;
 
   public String getNamePrefix() {
     return namePrefix;
@@ -36,12 +31,14 @@ public class UriEntry {
     this.namePrefix = namePrefix;
   }
 
-  public boolean isAppendSchemaFile() {
-    return appendSchemaFile;
+  @Override
+  String getEntityId() {
+    return getNamePrefix();
   }
 
-  public void setAppendSchemaFile(boolean appendSchemaFile) {
-    this.appendSchemaFile = appendSchemaFile;
+  @Override
+  String getDefaultEntityId() {
+    return null;
   }
 
 }
