@@ -39,7 +39,7 @@ public class RunEmbeddedMaven {
   @Test
   public void testEmbedded() throws Exception {
 
-    File baseDir = resources.getBasedir("test-dependency-resolver-config");
+    File baseDir = resources.getBasedir("flatten/test-dependency-resolver-config");
     File pomFile = new File(baseDir, "pom.xml");
 
     System.setProperty("maven.multiModuleProjectDirectory", baseDir.toString());

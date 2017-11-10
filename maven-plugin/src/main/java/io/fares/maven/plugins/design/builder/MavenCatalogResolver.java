@@ -265,7 +265,7 @@ public final class MavenCatalogResolver extends CatalogResolver {
   public ClassLoader getClassLoader() {
     // need to set asn inital classloader first
     if (this.classLoader == null) {
-      getCatalog().getCatalogManager().debug.message(1, format("No classloader has been provided to [{0}], defaulting to Thead ContextClassLoader.", getClass().getSimpleName()));
+      getCatalog().getCatalogManager().debug.message(1, format("No classloader has been provided to [{0}], defaulting to Thread ContextClassLoader.", getClass().getSimpleName()));
       // NOTE this may not work reliably under certain circumstances so
       // advided to set the ClassLoader specifically.
       this.classLoader = Thread.currentThread().getContextClassLoader();

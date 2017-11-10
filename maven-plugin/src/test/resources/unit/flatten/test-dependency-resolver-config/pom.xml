@@ -65,7 +65,7 @@
             </catalog>
             <catalog>
               <url>
-                file:///C:/Users/fred/build-tools/design-builder-maven-plugin/src/test/resources/unit/test-dependency-resolver-config/src/main/content/jar-1-content/catalog.xml
+                file:///C:/Users/fred/build-tools/design-builder-maven-plugin/src/test/resources/unit/flatten/test-dependency-resolver-config/src/main/content/jar-1-content/catalog.xml
               </url>
             </catalog>
             -->

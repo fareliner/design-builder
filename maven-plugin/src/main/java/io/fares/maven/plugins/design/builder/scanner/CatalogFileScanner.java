@@ -157,6 +157,7 @@ public class CatalogFileScanner {
 
     StringBuilder classpath = new StringBuilder();
 
+    // build a classpath
     for (URL el : cp) {
       classpath.append(File.pathSeparatorChar);
       classpath.append(el.toExternalForm());
@@ -230,7 +231,7 @@ public class CatalogFileScanner {
 
   protected List<URL> getCatalogUrls() throws ArtifactResolutionException, IOException {
 
-    final List<URL> allCatalogUrls = new ArrayList<URL>(catalogs.length);
+    final List<URL> allCatalogUrls = new ArrayList<>(catalogs.length);
 
     for (ResourceEntry catalog : catalogs) {
       List<URL> resolvedCatalogUrls = resourceEntryResolver.createResourceEntryUrls(

@@ -22,8 +22,10 @@ package io.fares.design.builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 
 import org.apache.xml.resolver.Catalog;
 import org.apache.xml.resolver.tools.CatalogResolver;
@@ -43,7 +45,7 @@ public class JlibsResolverBridge implements XMLCrawler.Resolver {
   private CatalogResolver resolver;
 
   public JlibsResolverBridge(CatalogResolver resolver) {
-    this.resolver = resolver;
+    this.resolver = Objects.requireNonNull(resolver);
   }
 
   @Override
@@ -69,9 +71,11 @@ public class JlibsResolverBridge implements XMLCrawler.Resolver {
       log.warn("Failed to resolve uri " + location, ignore);
     }
 
-    // TODO that would be the same as entity resolution?
     try {
-      String result = catalog.resolvePublic(namespace, location);
+      // check if we have both, if not the publicId will whatever is in location
+      String publicId = namespace != null ? namespace : location;
+      String systemId = namespace != null ? location : null;
+      String result = catalog.resolvePublic(publicId, systemId);
       if (result != null) {
         return result;
       }
@@ -80,18 +84,34 @@ public class JlibsResolverBridge implements XMLCrawler.Resolver {
     }
 
     // last change file based import relative to the parent
-    if (base != null) {
-      String uri = URI.create(base).resolve(location).toString();
-      return uri.toString();
+    if (base != null && location != null) {
+      String relativeResource;
+      if (location.lastIndexOf('/') > -1 && location.lastIndexOf('/') < location.length()) {
+        relativeResource = location.substring(location.lastIndexOf('/') + 1);
+      } else {
+        relativeResource = location;
+      }
+      URI uri = URI.create(base).resolve(relativeResource);
+      if ("file".equals(uri.getScheme())) {
+        File f = new File(uri);
+        if (f.exists() && f.isFile()) {
+          return f.getAbsolutePath();
+        }
+      } else {
+        // blindly trust, could be a related resource on the web, no way to check
+        return uri.toString();
+      }
     }
+
+    if (log.isWarnEnabled())
+      log.warn("Unable to resolve publicId={} systemId={}", namespace, location);
 
     return null;
 
-
   }
-
 
   public EntityResolver getResolver() {
     return resolver;
   }
+
 }

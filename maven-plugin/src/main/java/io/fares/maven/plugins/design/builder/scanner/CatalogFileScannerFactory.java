@@ -40,20 +40,25 @@ import io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyRe
 public class CatalogFileScannerFactory {
 
   @Requirement
+  MavenProject project;
+
+  @Requirement
   ResourceEntryDependencyResolver resourceResolver;
 
-  public CatalogFileScanner newInstance(MavenProject project, RepositorySystemSession repositorySystemSession, List<RemoteRepository> remoteRepositories, List<Resource> resources, ResourceEntry[] catalogs, File sourceDirectory, Set<String> includes, Set<String> excludes) throws DependencyResolutionRequiredException {
+  public CatalogFileScanner newInstance(RepositorySystemSession repositorySystemSession, ResourceEntry[] catalogs, File sourceDirectory, Set<String> includes, Set<String> excludes) throws DependencyResolutionRequiredException {
+
     CatalogFileScanner scanner = new CatalogFileScanner();
     scanner.setCompileClasspathElements(project.getCompileClasspathElements());
     scanner.setRepositorySystemSession(repositorySystemSession);
-    scanner.setRemoteRepositories(remoteRepositories);
+    scanner.setRemoteRepositories(project.getRemoteProjectRepositories());
     scanner.setResourceEntryResolver(resourceResolver);
-    scanner.setResources(resources);
+    scanner.setResources(project.getResources());
     scanner.setCatalogs(catalogs);
     scanner.setSourceDirectory(sourceDirectory);
     scanner.setIncludes(includes);
     scanner.setExcludes(excludes);
     return scanner;
+
   }
 
 }

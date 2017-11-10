@@ -114,6 +114,12 @@ public class FlattenImportPathMojo extends AbstractMojo {
   private ResourceEntry[] catalogs;
 
   /**
+   * Also scan classpath dependencies for catalog files. Use in conjunction with {@link #catalogFilter} to select specific entries. If not selected,
+   */
+  @Parameter(property = "flatten.catalog.scanDependencies", defaultValue = "false")
+  private boolean scanDependencies;
+
+  /**
    * This flag can be used to scan for different catalog files in the classpath
    */
   @Parameter(property = "flatten.catalog.filter", alias = "catalogFilter", defaultValue = "^(.*/)?catalog\\.xml")
@@ -129,23 +135,23 @@ public class FlattenImportPathMojo extends AbstractMojo {
   /**
    * The directory that contains the source files
    */
-  @Parameter(alias = "sourceDirectory", property = "sourceDirectory", defaultValue = "${project.basedir}", required = true, readonly = false)
+  @Parameter(alias = "sourceDirectory", property = "sourceDirectory", defaultValue = "${project.basedir}", required = true)
   private File sourceDirectory;
 
   /**
    * A list of inclusion filters for the catalog generator.
    */
   @Parameter
-  private Set<String> includes = new HashSet<String>();
+  private Set<String> includes = new HashSet<>();
 
   /**
    * A list of exclusion filters for the catalog generator.
    */
   @Parameter
-  private Set<String> excludes = new HashSet<String>();
+  private Set<String> excludes = new HashSet<>();
 
   /**
-   * If set to true, Maven default exludes are NOT added to all the excludes
+   * If set to true, Maven default excludes are NOT added to all the excludes
    * lists.
    */
   @Parameter(property = "maven.dmb.disableDefaultExcludes", alias = "disableDefaultExcludes", defaultValue = "false")
@@ -181,7 +187,10 @@ public class FlattenImportPathMojo extends AbstractMojo {
     // Not sure if this is the way to go in a standard maven build. Why does
     // this directory not exist in a compile cycle?
     if (!outputDirectory.exists()) {
-      outputDirectory.mkdirs();
+      boolean targetCreated = outputDirectory.mkdirs();
+      if (!targetCreated) {
+        throw new MojoExecutionException("failed to create output directory " + outputDirectory.getAbsolutePath());
+      }
       if (getLog().isDebugEnabled() || verbose) {
         getLog().debug("Need to create output directory " + outputDirectory.toString());
       }
@@ -206,12 +215,20 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
     try {
 
-      CatalogFileScanner catscanner = catalogFileScannerFactory.newInstance(
-        project, repositorySystemSession, remoteRepositories, resources, catalogs, sourceDirectory, includes, excludes);
+      List<URL> catalogFiles = new LinkedList<>();
 
-      catscanner.setCompileClasspathElements(compileClasspathElements);
+      CatalogFileScanner catScanner = catalogFileScannerFactory.newInstance(
+        repositorySystemSession,
+        catalogs,
+        sourceDirectory,
+        includes,
+        excludes);
 
-      List<URL> catalogFiles = catscanner.scan(catalogFilter);
+      if (scanDependencies) {
+        catScanner.setCompileClasspathElements(compileClasspathElements);
+      }
+
+      catalogFiles.addAll(catScanner.scan(catalogFilter));
 
       // the crawler is our friend as he can flatten path references of
       // all sorts of XML documents including xsd and wsdl imports
@@ -224,11 +241,11 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
       MavenCatalogResolver resolver = mavenCatalogResolverFactory.newInstance(repositorySystemSession, catalogFiles);
       // r = createXercesResolver(catalogURLs);
-      XMLCrawler crawler = new XMLCrawler();
-      crawler.setResolver(new JlibsResolverBridge(resolver));
+
+      JlibsResolverBridge resolverBridge = new JlibsResolverBridge(resolver);
 
       // either flatten file or sources
-      Set<URL> artifacts = new HashSet<URL>(10);
+      Set<URL> artifacts = new HashSet<>(10);
 
       if (sourceDirectory == null && flattenTarget == null) {
         // error out
@@ -244,7 +261,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
         artifacts.add(url);
 
-      } else if (sourceDirectory != null && sourceDirectory.exists()) {
+      } else if (sourceDirectory.exists()) {
         // scan the source directory for any configured (xsd) files
         SimpleSourceInclusionScanner scanner = getSourceInclusionScanner();
         // FIXME get resources from all URLs listed in resources
@@ -266,7 +283,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
        *
        */
 
-      List<Throwable> errorEncountered = new LinkedList<Throwable>();
+      List<Throwable> errorEncountered = new LinkedList<>();
 
       for (URL targetFile : artifacts) {
         try {
@@ -274,6 +291,8 @@ public class FlattenImportPathMojo extends AbstractMojo {
             getLog().info("Flatten file: " + targetFile.toExternalForm());
           // FIXME do a proper URI check
           InputSource source = new InputSource(targetFile.toExternalForm());
+          XMLCrawler crawler = new XMLCrawler();
+          crawler.setResolver(resolverBridge);
           crawler.crawl(source, new SimpleNameCrawlerListener(
             outputDirectory, overrideExistingReference), null);
         } catch (Throwable e) {
@@ -329,6 +348,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
    * Setup a <code>XMLCatalogResolver</code> to be used by the crawler.
    *
    * @param catalogs A list of catalog locations. All need to be valid URIs.
+   *
    * @return a configured catalog resolver
    */
   private XMLCatalogResolver createXercesResolver(String[] catalogs) {

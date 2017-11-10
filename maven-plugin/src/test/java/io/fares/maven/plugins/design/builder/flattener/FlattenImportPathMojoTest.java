@@ -48,8 +48,7 @@ import org.eclipse.aether.repository.*;
 
 public class FlattenImportPathMojoTest {
 
-  protected final Logger log = LoggerFactory
-    .getLogger(FlattenImportPathMojoTest.class);
+  protected final Logger log = LoggerFactory.getLogger(FlattenImportPathMojoTest.class);
 
   @Rule
   public MojoRule rule = new MojoRule();
@@ -65,7 +64,7 @@ public class FlattenImportPathMojoTest {
   public void testDependencyResolver() throws Exception {
 
 
-    File baseDir = resources.getBasedir("test-dependency-resolver-config");
+    File baseDir = resources.getBasedir("flatten/test-dependency-resolver-config");
     File pomFile = new File(baseDir, "pom.xml");
 
     PlexusContainer container = rule.getContainer();

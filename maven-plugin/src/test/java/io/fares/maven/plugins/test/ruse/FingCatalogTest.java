@@ -45,7 +45,7 @@ public class FingCatalogTest {
     URI uri = repo.toURI();
 
     URI catJar = uri
-      .resolve("../../src/test/resources/unit/test-dependency-resolver-config/lib/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar");
+      .resolve("../../src/test/resources/unit/flatten/test-dependency-resolver-config/lib/io/fares/maven/plugins/test/unit/jar-1/1.0.0/jar-1-1.0.0.jar");
 
     URL url = new URL("jar:" + catJar.toString() + "!/catalog.xml");
 

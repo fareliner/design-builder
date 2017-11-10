@@ -34,9 +34,9 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
   /**
    * Setting this to false will result in every file
    */
-  protected boolean overrideExistingFile = false;
+  private boolean overrideExistingFile = false;
 
-  protected File dir;
+  private File dir;
 
   public SimpleNameCrawlerListener(File dir) {
     this.dir = dir;
@@ -83,12 +83,13 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
   }
 
   /**
-   * Works out the file system path woithout mocking the name up like the
+   * Works out the file system path without stuffing the name up like the
    * {@link DefaultCrawlerListener} does.
    *
-   * @param path
-   * @param extension
-   * @return
+   * @param path      the parent path to use for the file base
+   * @param extension the extension to give to the file
+   *
+   * @return a new file handle
    */
   private String suggestDirFile(String path, String extension) {
 
@@ -104,11 +105,12 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
   }
 
   /**
-   * Works out the OSB generated paths ...
+   * Works out the OSB or Axis2 generated paths ...
    *
-   * @param path
-   * @param extension
-   * @return
+   * @param path      the parent path to use for the file base
+   * @param extension the extension to give to the file
+   *
+   * @return a new file handle
    */
   String suggestGeneratedUri(String path, String extension) {
     String tokens[] = StringUtil.getTokens(path, "/", true);
