@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -71,7 +71,6 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     setCatalogLocation(catalogLocation);
     return this;
   }
-
 
   public boolean isVerbose() {
     return verbose;
@@ -176,8 +175,7 @@ abstract class AbstractCatalogWriter implements CatalogWriter {
     } else if (option.getDefaultEntityId() != null) {
       entityId = option.getDefaultEntityId();
     } else {
-      throw new MojoExecutionException("Schema file " + schemaFile.getName() + " does not contain a targetNamespace. " +
-        "Please either add a targetNamespace to the schema or configure the publicId option in the maven plugin configuration.");
+      return null;
     }
     // endregion
 

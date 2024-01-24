@@ -7,7 +7,7 @@
   ~ "License"); you may not use this file except in compliance
   ~ with the License. You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing,
   ~ software distributed under the License is distributed on an
@@ -16,11 +16,12 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.fares.design.builder</groupId>
   <artifactId>design-builder</artifactId>
-  <version>0.1.5-SNAPSHOT</version>
+  <version>${revision}</version>
   <packaging>pom</packaging>
 
   <name>Design Builder</name>
@@ -30,7 +31,7 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -41,7 +42,7 @@
       <email>niels.bertram@fares.io</email>
       <url>https://plus.google.com/+NielsBertram</url>
       <organization>fares.io</organization>
-      <organizationUrl>http://fares.io/</organizationUrl>
+      <organizationUrl>https://fares.io/</organizationUrl>
     </developer>
   </developers>
 
@@ -53,14 +54,14 @@
   </scm>
 
   <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
     <snapshotRepository>
       <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
     </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
   </distributionManagement>
 
   <modules>
@@ -73,11 +74,18 @@
     <!-- unify the encoding for all the modules -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <nexus.stagin.plugin.version>1.6.8</nexus.stagin.plugin.version>
   </properties>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>flatten-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -89,11 +97,11 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus.stagin.plugin.version}</version>
+          <version>1.6.13</version>
           <extensions>true</extensions>
           <configuration>
             <serverId>ossrh</serverId>
-            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
             <autoReleaseAfterClose>true</autoReleaseAfterClose>
           </configuration>
         </plugin>
@@ -101,7 +109,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>1.4.1</version>
+          <version>3.4.1</version>
           <executions>
             <execution>
               <id>enforce-versions</id>
@@ -114,12 +122,40 @@
                     <version>3.1.0</version>
                   </requireMavenVersion>
                   <requireJavaVersion>
-                    <version>1.7</version>
+                    <version>1.8</version>
                   </requireJavaVersion>
                 </rules>
               </configuration>
             </execution>
+            <execution>
+              <id>enforce-bytecode-version</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <enforceBytecodeVersion>
+                    <maxJdkVersion>1.8</maxJdkVersion>
+                    <ignoreClasses>
+                      <ignoreClass>module-info</ignoreClass>
+                    </ignoreClasses>
+                    <excludes>
+                      <exclude>org.junit:*</exclude>
+                      <exclude>org.mockito:*</exclude>
+                    </excludes>
+                  </enforceBytecodeVersion>
+                </rules>
+                <fail>true</fail>
+              </configuration>
+            </execution>
           </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>extra-enforcer-rules</artifactId>
+              <version>1.7.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <!-- activate release with java docs and code signing -->
         <plugin>
@@ -136,9 +172,11 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.4</version>
+          <version>3.6.0</version>
           <configuration>
-            <additionalparam>-Xdoclint:none</additionalparam>
+            <additionalJOptions>
+              <additionalJOption>-Xdoclint:none</additionalJOption>
+            </additionalJOptions>
           </configuration>
           <executions>
             <execution>
@@ -153,7 +191,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.3.0</version>
           <executions>
             <execution>
               <id>attach-sources</id>
@@ -163,17 +201,53 @@
             </execution>
           </executions>
         </plugin>
+        <!-- module used for maven ci friendly builds, see blueprints -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>flatten-maven-plugin</artifactId>
+          <version>1.5.0</version>
+          <configuration>
+            <updatePomFile>true</updatePomFile>
+            <flattenMode>ossrh</flattenMode>
+            <pomElements>
+              <build>remove</build>
+            </pomElements>
+          </configuration>
+          <executions>
+            <execution>
+              <id>flatten</id>
+              <phase>prepare-package</phase>
+              <goals>
+                <goal>flatten</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>flatten.clean</id>
+              <phase>clean</phase>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
         <!-- override old default jar -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.3.0</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <Built-By>fares.io</Built-By>
+              </manifestEntries>
+            </archive>
+          </configuration>
         </plugin>
         <!-- sign artifacts -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.6</version>
+          <version>3.1.0</version>
           <executions>
             <execution>
               <id>sign-artifacts</id>

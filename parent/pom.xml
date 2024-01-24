@@ -7,7 +7,7 @@
   ~ "License"); you may not use this file except in compliance
   ~ with the License. You may obtain a copy of the License at
   ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~ https://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing,
   ~ software distributed under the License is distributed on an
@@ -16,31 +16,33 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.fares.design.builder</groupId>
     <artifactId>design-builder</artifactId>
-    <version>0.1.5-SNAPSHOT</version>
+    <version>${revision}</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>design-builder-parent</artifactId>
   <packaging>pom</packaging>
-  <name>Design Builder BOM</name>
+  <name>Design Builder Parent</name>
 
   <properties>
-    <slf4j.version>1.7.5</slf4j.version>
+    <slf4j.version>1.7.36</slf4j.version>
     <maven.version>3.3.9</maven.version>
-    <maven.plugin.version>3.3</maven.plugin.version>
+    <maven.plugin.version>3.11.0</maven.plugin.version>
     <maven.test.version>3.3.0</maven.test.version>
-    <aether.version>1.0.2.v20150114</aether.version>
-    <jlibs.version>2.2.1</jlibs.version>
-    <fast.classpath.scanner.version>2.8.2</fast.classpath.scanner.version>
+    <aether.version>1.1.0</aether.version>
+    <jlibs.version>2.2.3</jlibs.version>
+    <fast.classpath.scanner.version>4.8.165</fast.classpath.scanner.version>
     <xmlresolver.version>1.2</xmlresolver.version>
-    <xerces.version>2.11.0</xerces.version>
-    <xalan.version>2.7.2</xalan.version>
-    <junit.version>4.12</junit.version>
-    <xmlunit.version>2.3.0</xmlunit.version>
+    <xerces.version>2.12.2</xerces.version>
+    <xalan.version>2.7.3</xalan.version>
+    <junit.version>5.10.1</junit.version>
+    <xmlunit.version>2.9.1</xmlunit.version>
+    <mockito.version>5.3.1</mockito.version>
   </properties>
 
   <dependencyManagement>
@@ -96,6 +98,11 @@
         <artifactId>xalan</artifactId>
         <version>${xalan.version}</version>
       </dependency>
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>serializer</artifactId>
+        <version>${xalan.version}</version>
+      </dependency>
       <!-- parsing xml docs -->
       <dependency>
         <groupId>in.jlibs</groupId>
@@ -104,28 +111,36 @@
       </dependency>
       <!-- testing dependencies -->
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
-        <scope>test</scope>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>org.xmlunit</groupId>
         <artifactId>xmlunit-core</artifactId>
         <version>${xmlunit.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.xmlunit</groupId>
         <artifactId>xmlunit-matchers</artifactId>
         <version>${xmlunit.version}</version>
-        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>${mockito.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>${mockito.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.maven.plugin-testing</groupId>
         <artifactId>maven-plugin-testing-harness</artifactId>
         <version>${maven.test.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.eclipse.aether</groupId>
@@ -148,8 +163,8 @@
         <version>${aether.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.github.lukehutch</groupId>
-        <artifactId>fast-classpath-scanner</artifactId>
+        <groupId>io.github.classgraph</groupId>
+        <artifactId>classgraph</artifactId>
         <version>${fast.classpath.scanner.version}</version>
       </dependency>
       <dependency>
@@ -167,45 +182,31 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.6.1</version>
+          <version>3.11.0</version>
           <configuration>
-            <source>1.7</source>
-            <target>1.7</target>
-            <debug>true</debug>
-            <debuglevel>lines,vars,source</debuglevel>
-            <optimize>true</optimize>
+            <release>8</release>
           </configuration>
         </plugin>
         <!-- override old default resources -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.3.1</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+          </configuration>
         </plugin>
         <!-- override old default clean -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.3.1</version>
         </plugin>
         <!-- set maven plugin plugin version -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
           <version>${maven.plugin.version}</version>
-          <configuration>
-            <goalPrefix>design</goalPrefix>
-            <skipErrorNoDescriptorsFound>false</skipErrorNoDescriptorsFound>
-          </configuration>
-          <executions>
-            <execution>
-              <id>mojo-descriptor</id>
-              <phase>process-classes</phase>
-              <goals>
-                <goal>descriptor</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
         <!-- set own plugin for testing -->
         <plugin>

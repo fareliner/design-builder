@@ -30,6 +30,62 @@ There are many options available to design the actual data model and service con
 
 So what's with this plugin? Simple, this plugin will support the design tool and packaging process to turn a XML Schema based data model into distributable components.
 
+```xml
+<plugin>
+  <groupId>io.fares.maven.plugins</groupId>
+  <artifactId>design-builder-maven-plugin</artifactId>
+  <version>0.1.5</version>
+  <executions>
+    <!-- flatten the XSDL resource into the target output directory -->
+    <execution>
+      <id>flatten-wsdl</id>
+      <phase>generate-sources</phase>
+      <goals>
+        <goal>flatten</goal>
+      </goals>
+      <configuration>
+        <verbose>true</verbose>
+        <sourceDirectory>${project.baseDir}/src/main/wsdl</sourceDirectory>
+        <includes>
+          <include>**/*.wsdl</include>
+        </includes>
+        <scanDependencies>true</scanDependencies>
+        <catalogFilter>(.*\.cat)|(.*catalog\.xml)</catalogFilter>
+        <outputDirectory>${project.build.directory}/generated-sources/wsdl</outputDirectory>
+      </configuration>
+    </execution>
+    <execution>
+      <!-- this execution will ensure a catalog.xml file is packaged with the release bundle -->
+      <id>generate-release-catalog</id>
+      <phase>process-resources</phase>
+      <goals>
+        <goal>catalog</goal>
+      </goals>
+      <configuration>
+        <sourceDirectory>${project.build.directory}/generated-sources/wsdl</sourceDirectory>
+        <targetCatalogFile>${project.build.outputDirectory}/META-INF/catalog.cat</targetCatalogFile>
+        <includes>
+          <include>**/*.xsd</include>
+        </includes>
+        <verbose>true</verbose>
+        <catalog>
+          <prefer>public</prefer>
+          <public>
+            <appendSchemaFile>true</appendSchemaFile>
+          </public>
+          <system>
+            <appendSchemaFile>true</appendSchemaFile>
+          </system>
+          <systemSuffix>
+            <pathOffset>0</pathOffset>
+          </systemSuffix>
+        </catalog>
+      </configuration>
+    </execution>
+  </executions>
+</plugin>
+```
+
 ### Design Catalog
 
 Generates a catalog file that can be used with XML schema design tools to locate work in progress.  
@@ -47,4 +103,4 @@ the catalog generator currently only supports system suffix catalogs
 ### TODO
 
 * [X] needs better unit tests
-* [ ] implement mojo that will generate catalog with classpath reference (see [CXF catalog example](http://labs.bsb.com/2011/01/usage-of-an-xml-catalog-in-the-xmlbeans-cxf-integration/))  
+* [ ] implement mojo that will generate catalog with classpath reference (see [CXF catalog example](https://labs.bsb.com/2011/01/usage-of-an-xml-catalog-in-the-xmlbeans-cxf-integration/))  

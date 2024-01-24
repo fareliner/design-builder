@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -20,35 +20,36 @@
 package io.fares.maven.plugins.design.builder.flattener;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
+import io.fares.design.builder.JlibsResolverBridge;
+import io.fares.maven.plugins.design.builder.MavenCatalogResolver;
+import io.fares.maven.plugins.design.builder.MavenCatalogResolverFactory;
+import io.fares.maven.plugins.design.builder.scanner.CatalogFileScanner;
+import io.fares.maven.plugins.design.builder.scanner.CatalogFileScannerFactory;
+import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanner;
+import jlibs.xml.sax.crawl.XMLCrawler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
+import org.apache.xerces.util.XMLCatalogResolver;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
-
-import org.apache.xerces.util.XMLCatalogResolver;
 import org.xml.sax.InputSource;
 
-import jlibs.xml.sax.crawl.XMLCrawler;
-import io.fares.design.builder.JlibsResolverBridge;
-
-import io.fares.maven.plugins.design.builder.scanner.CatalogFileScanner;
-import io.fares.maven.plugins.design.builder.scanner.CatalogFileScannerFactory;
-import io.fares.maven.plugins.design.builder.MavenCatalogResolver;
-import io.fares.maven.plugins.design.builder.MavenCatalogResolverFactory;
-import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanner;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 @SuppressWarnings("UnusedDeclaration") // Used reflectively by Maven.
 @Mojo(
@@ -179,7 +180,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
   }
 
   @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
+  public void execute() throws MojoExecutionException {
 
     if (skip)
       return;
@@ -228,7 +229,11 @@ public class FlattenImportPathMojo extends AbstractMojo {
         catScanner.setCompileClasspathElements(compileClasspathElements);
       }
 
-      catalogFiles.addAll(catScanner.scan(catalogFilter));
+      try {
+        catalogFiles.addAll(catScanner.scan(Pattern.compile(catalogFilter)));
+      } catch (PatternSyntaxException e) {
+        throw new MojoExecutionException("The provided flatten.catalog.filter property is not a valid regular expression.", e);
+      }
 
       // the crawler is our friend as he can flatten path references of
       // all sorts of XML documents including xsd and wsdl imports
@@ -274,7 +279,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
       }
 
       // check we got something
-      if (artifacts.size() == 0) {
+      if (artifacts.isEmpty()) {
         getLog().warn("No resources for catalog file found in " + sourceDirectory.toString());
       }
 
@@ -306,7 +311,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
       }
 
       // if not haltonerror and we some ...
-      if (!haltOnError && errorEncountered.size() > 0) {
+      if (!haltOnError && !errorEncountered.isEmpty()) {
         // TODO give all errors back
         throw new MojoExecutionException(
           "Errors encountered during processing.",
@@ -348,7 +353,6 @@ public class FlattenImportPathMojo extends AbstractMojo {
    * Setup a <code>XMLCatalogResolver</code> to be used by the crawler.
    *
    * @param catalogs A list of catalog locations. All need to be valid URIs.
-   *
    * @return a configured catalog resolver
    */
   private XMLCatalogResolver createXercesResolver(String[] catalogs) {

@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,6 +19,16 @@
 
 package io.fares.maven.plugins.design.builder.scanner;
 
+import io.fares.maven.plugins.design.builder.flattener.ResourceEntry;
+import io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyResolver;
+import io.fares.maven.plugins.utils.CollectionUtils;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ScanResult;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.model.Resource;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,26 +37,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static java.text.MessageFormat.format;
 
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
-import org.apache.maven.model.Resource;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
+public final class CatalogFileScanner {
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.matchprocessor.FileMatchProcessorWithContext;
-
-import io.fares.maven.plugins.design.builder.flattener.ResourceEntry;
-import io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyResolver;
-import io.fares.maven.plugins.utils.CollectionUtils;
-
-public class CatalogFileScanner {
-
-  Logger log = LoggerFactory.getLogger(CatalogFileScanner.class);
+  private static final Logger log = LoggerFactory.getLogger(CatalogFileScanner.class);
 
   private List<String> compileClasspathElements;
 
@@ -139,9 +138,10 @@ public class CatalogFileScanner {
     this.excludes = excludes;
   }
 
-  public List<URL> scan(String catalogFilter) throws IOException, ArtifactResolutionException, DependencyResolutionRequiredException {
+  public List<URL> scan(Pattern catalogFilter) throws IOException, ArtifactResolutionException {
 
-    Set<URL> cp = new HashSet();
+    Set<URL> cp = new HashSet<>();
+
     // 1. add all classpath resources
     cp.addAll(getClassPathElementURLs(compileClasspathElements));
 
@@ -166,41 +166,36 @@ public class CatalogFileScanner {
     final List<URL> catalogFiles = new LinkedList<>();
 
     if (log.isInfoEnabled()) {
-      log.info("Scanner Classpath:" + '\n' + classpath.toString());
+      log.info("Scanner Classpath:" + '\n' + classpath);
     }
 
     if (log.isDebugEnabled()) {
       log.debug("Scanner uses catalogFilter: {}", catalogFilter);
     }
 
-    FastClasspathScanner scanner = new FastClasspathScanner()
+
+    Map<String, String> pathToFileContent = new HashMap<>();
+
+    ClassGraph scanner = new ClassGraph()
       .overrideClasspath(classpath.toString())
-      .matchFilenamePattern(catalogFilter, new FileMatchProcessorWithContext() {
+      .acceptPaths("*");
 
-        @Override
-        public void processMatch(File parent, String file, InputStream inputStream, long lengthBytes) throws IOException {
+    try (ScanResult scanResult = scanner.scan()) {
+      // filter the results for a regex match of the filter
+      scanResult.getResourcesMatchingPattern(catalogFilter)
+        .forEachByteArrayThrowingIOException(
+          (io.github.classgraph.Resource r, byte[] fileContent) -> {
+            pathToFileContent.put(r.getPath(), new String(fileContent, StandardCharsets.UTF_8));
 
-          if (log.isDebugEnabled()) {
-            log.debug(" :: found catalog file: {}", file);
+            if (log.isDebugEnabled()) {
+              log.debug(" :: add catalog resource: {}", r.getURL().toExternalForm());
+            }
+
+            catalogFiles.add(r.getURL());
+
           }
-
-          URL resource = null;
-          if (parent.exists() && parent.isDirectory()) {
-            File catFile = new File(parent, file);
-            resource = catFile.toURI().toURL();
-          } else {
-            resource = new URL(format("jar:{0}!/{1}", parent.toURI().toURL().toExternalForm(), file));
-          }
-
-          if (log.isDebugEnabled()) {
-            log.debug(" :: add catalog resource: {}", resource.toExternalForm());
-          }
-
-          catalogFiles.add(resource);
-
-        }
-      });
-
+        );
+    }
 
     if (log.isDebugEnabled()) {
       scanner.verbose();
@@ -220,14 +215,14 @@ public class CatalogFileScanner {
     return result;
   }
 
-     /*
-    * FIXME need a function to resolve catalog files
-    *
-    * the function needs to "find" catalog files in the maven project src|target|catalog resources specified
-    *
-    * the convention is to look for <t>catalog.xml</t> and retorn a list of URLs we can then use to construct the
-    *
-    */
+  /*
+   * FIXME need a function to resolve catalog files
+   *
+   * the function needs to "find" catalog files in the maven project src|target|catalog resources specified
+   *
+   * the convention is to look for <t>catalog.xml</t> and retorn a list of URLs we can then use to construct the
+   *
+   */
 
   protected List<URL> getCatalogUrls() throws ArtifactResolutionException, IOException {
 

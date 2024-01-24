@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,7 +28,7 @@ import java.net.URI;
 
 public class PublicCatalogWriter extends FileByFileCatalogWriter {
 
-  private PublicOption option;
+  private final PublicOption option;
 
   PublicCatalogWriter(PublicOption option) throws ParserConfigurationException {
     this.option = option;
@@ -44,6 +44,14 @@ public class PublicCatalogWriter extends FileByFileCatalogWriter {
 
     // construct publicId
    String publicId = constructEntityId(option, schemaFile);
+
+  // if there is no publicId we need to skip this one
+   if (publicId == null) {
+     if (log.isWarnEnabled()) {
+       log.warn("refuse adding catalog public entry: file {} is a chameleon schema", schemaFile.getName());
+     }
+     return;
+   }
 
     // construct actual schema uri
     URI uri = constructUri(option, schemaFile);
