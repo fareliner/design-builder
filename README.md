@@ -34,7 +34,7 @@ So what's with this plugin? Simple, this plugin will support the design tool and
 <plugin>
   <groupId>io.fares.maven.plugins</groupId>
   <artifactId>design-builder-maven-plugin</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
   <executions>
     <!-- flatten the XSDL resource into the target output directory -->
     <execution>
