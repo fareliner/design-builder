@@ -19,17 +19,14 @@
 
 package io.fares.maven.plugins.design.builder.flattener;
 
-import jlibs.core.io.FileUtil;
-import jlibs.core.lang.StringUtil;
-import jlibs.xml.sax.crawl.CrawlerListener;
-import jlibs.xml.sax.crawl.DefaultCrawlerListener;
+import io.fares.maven.plugins.utils.StringUtils;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-public class SimpleNameCrawlerListener implements CrawlerListener {
+public class SimpleNameCrawlerListener {
 
   /**
    * Setting this to false will result in every file
@@ -47,12 +44,10 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
     this.overrideExistingFile = overrideExistingFile;
   }
 
-  @Override
   public boolean doCrawl(URL url) {
     return true;
   }
 
-  @Override
   public File toFile(URL url, String extension) {
     /**
      * FIXME this will blow up when a reference url from an app server that
@@ -66,7 +61,7 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
     if (overrideExistingFile)
       return new File(dir, fileName);
     else
-      return FileUtil.findFreeFile(new File(dir, fileName));
+      return findFreeFile(new File(dir, fileName));
 
   }
 
@@ -83,8 +78,7 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
   }
 
   /**
-   * Works out the file system path without stuffing the name up like the
-   * {@link DefaultCrawlerListener} does.
+   * Works out the file system path without stuffing the name up.
    *
    * @param path      the parent path to use for the file base
    * @param extension the extension to give to the file
@@ -93,7 +87,7 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
    */
   private String suggestDirFile(String path, String extension) {
 
-    String tokens[] = StringUtil.getTokens(path, "/", true);
+    String tokens[] = StringUtils.split(path, '/', true);
     String file = tokens[tokens.length - 1];
     int dot = file.lastIndexOf(".");
 
@@ -113,15 +107,13 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
    * @return a new file handle
    */
   String suggestGeneratedUri(String path, String extension) {
-    String tokens[] = StringUtil.getTokens(path, "/", true);
+    String tokens[] = StringUtils.split(path, '/', true);
 
-    String parts[] = StringUtil.getTokens(tokens[tokens.length - 1], "?",
-      true);
+    String parts[] = StringUtils.split(tokens[tokens.length - 1], '?', true);
 
     // String wsdlName = parts[0];
 
-    String attrib[] = StringUtil.getTokens(parts[parts.length - 1], "&",
-      true);
+    String attrib[] = StringUtils.split(parts[parts.length - 1], '&', true);
 
     if (attrib.length == 3) {
       String typeAttrib = attrib[1];
@@ -162,6 +154,25 @@ public class SimpleNameCrawlerListener implements CrawlerListener {
 
     return args;
 
+  }
+
+  private File findFreeFile(File file) {
+    if (!file.exists()) {
+      return file;
+    }
+
+    final String name = file.getName();
+    final int dot = name.lastIndexOf('.');
+    final String base = dot == -1 ? name : name.substring(0, dot);
+    final String extension = dot == -1 ? "" : name.substring(dot);
+
+    int i = 1;
+    File candidate = new File(file.getParentFile(), base + i + extension);
+    while (candidate.exists()) {
+      i++;
+      candidate = new File(file.getParentFile(), base + i + extension);
+    }
+    return candidate;
   }
 
 }

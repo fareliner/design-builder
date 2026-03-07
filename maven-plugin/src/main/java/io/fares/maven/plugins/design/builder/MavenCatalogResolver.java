@@ -19,18 +19,8 @@
 
 package io.fares.maven.plugins.design.builder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.Objects;
-
-import static java.text.MessageFormat.format;
-
+import io.fares.maven.plugins.design.builder.flattener.DependencyResource;
+import io.fares.maven.plugins.design.builder.flattener.ResourceEntry;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.xml.resolver.CatalogManager;
@@ -40,11 +30,20 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.impl.ArtifactResolver;
 import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import io.fares.maven.plugins.design.builder.flattener.DependencyResource;
-import io.fares.maven.plugins.design.builder.flattener.ResourceEntry;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.text.MessageFormat.format;
 
 /**
  * A {@link CatalogResolver} that is capable to convert a <code>maven:</code>
@@ -54,6 +53,7 @@ import io.fares.maven.plugins.design.builder.flattener.ResourceEntry;
 public final class MavenCatalogResolver extends CatalogResolver {
 
   public static final String URI_SCHEME_MAVEN = "maven";
+
   public static final String URI_SCHEME_CLASSPATH = "classpath";
 
   Logger log = LoggerFactory.getLogger(MavenCatalogResolver.class);
@@ -68,13 +68,12 @@ public final class MavenCatalogResolver extends CatalogResolver {
    */
   private ClassLoader classLoader;
 
-  // FIXME move classloader construction to here
   public MavenCatalogResolver() {
-
+    this.classLoader = Thread.currentThread().getContextClassLoader();
   }
 
   /**
-   * Construct a JlibsResolverBridge that is capable of resolving resources inside
+   * Construct a resolver that is capable of resolving resources inside
    * Maven a list of {@link Dependency}.
    *
    * @param catalogManager          The {@link CatalogManager} to be used to resolve any entity
@@ -89,7 +88,7 @@ public final class MavenCatalogResolver extends CatalogResolver {
   }
 
   /**
-   * Construct a JlibsResolverBridge that is capable of resolving resources inside
+   * Construct a resolver that is capable of resolving resources inside
    * Maven a list of {@link Dependency}.
    *
    * @param catalogManager          The {@link CatalogManager} to be used to resolve any entity
@@ -102,17 +101,11 @@ public final class MavenCatalogResolver extends CatalogResolver {
                               RepositorySystemSession repositorySystemSession,
                               ArtifactResolver artifactResolver,
                               ClassLoader classloader) {
-
     // catalog gets initialized
     super(Objects.requireNonNull(catalogManager, "The catalog manager must not be null."));
+    this.classLoader = Optional.ofNullable(classloader).orElseGet(() -> Thread.currentThread().getContextClassLoader());
     this.artifactResolver = Objects.requireNonNull(artifactResolver, "Artifact resolver must not be null.");
     this.repositorySystemSession = Objects.requireNonNull(repositorySystemSession, "Repository system session must not be null.");
-
-    if (classloader != null) {
-      this.classLoader = classloader;
-    } else {
-      this.classLoader = Thread.currentThread().getContextClassLoader();
-    }
 
   }
 

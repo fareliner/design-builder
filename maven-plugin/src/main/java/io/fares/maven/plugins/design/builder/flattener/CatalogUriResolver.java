@@ -17,47 +17,40 @@
  * under the License.
  */
 
-package io.fares.design.builder;
+package io.fares.maven.plugins.design.builder.flattener;
 
+import org.apache.xml.resolver.Catalog;
+import org.apache.xml.resolver.tools.CatalogResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
 
-import org.apache.xml.resolver.Catalog;
-import org.apache.xml.resolver.tools.CatalogResolver;
-
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-
-import jlibs.xml.sax.crawl.XMLCrawler;
-
 /**
- * Implements the "non-standard" JLibs resolver interface delegating through to a configured SAX @{@link EntityResolver}.
+ * Resolves import/include links through the configured catalog resolver.
  */
-public class JlibsResolverBridge implements XMLCrawler.Resolver {
+public class CatalogUriResolver {
 
-  private static final Logger log = LoggerFactory.getLogger(JlibsResolverBridge.class);
+  private static final Logger log = LoggerFactory.getLogger(CatalogUriResolver.class);
 
-  private CatalogResolver resolver;
+  private final CatalogResolver resolver;
 
-  public JlibsResolverBridge(CatalogResolver resolver) {
-    this.resolver = Objects.requireNonNull(resolver);
+  public CatalogUriResolver(CatalogResolver resolver) {
+    this.resolver = Objects.requireNonNull(resolver, "catalog resolver cannot be null");
   }
 
-  @Override
   public String resolve(String namespace, String base, String location) {
-
     try {
       InputSource source = resolver.resolveEntity(namespace, location);
       if (source != null) {
         return new URL(source.getSystemId()).toExternalForm();
       }
-    } catch (Exception ignore) {
-      log.warn("Failed to resolve entity systemId " + location, ignore);
+    } catch (Exception e) {
+      log.warn("Failed to resolve entity systemId {}", location, e);
     }
 
     Catalog catalog = resolver.getCatalog();
@@ -67,23 +60,21 @@ public class JlibsResolverBridge implements XMLCrawler.Resolver {
       if (result != null) {
         return result;
       }
-    } catch (Exception ignore) {
-      log.warn("Failed to resolve uri " + location, ignore);
+    } catch (Exception e) {
+      log.warn("Failed to resolve uri {}", location, e);
     }
 
     try {
-      // check if we have both, if not the publicId will whatever is in location
       String publicId = namespace != null ? namespace : location;
       String systemId = namespace != null ? location : null;
       String result = catalog.resolvePublic(publicId, systemId);
       if (result != null) {
         return result;
       }
-    } catch (Exception ignore) {
-      log.debug("Failed to resolve uri " + location, ignore);
+    } catch (Exception e) {
+      log.debug("Failed to resolve uri {}", location, e);
     }
 
-    // last change file based import relative to the parent
     if (base != null && location != null) {
       String relativeResource;
       if (location.lastIndexOf('/') > -1 && location.lastIndexOf('/') < location.length()) {
@@ -98,20 +89,15 @@ public class JlibsResolverBridge implements XMLCrawler.Resolver {
           return f.getAbsolutePath();
         }
       } else {
-        // blindly trust, could be a related resource on the web, no way to check
         return uri.toString();
       }
     }
 
-    if (log.isWarnEnabled())
+    if (log.isWarnEnabled()) {
       log.warn("Unable to resolve publicId={} systemId={}", namespace, location);
+    }
 
     return null;
-
-  }
-
-  public EntityResolver getResolver() {
-    return resolver;
   }
 
 }
