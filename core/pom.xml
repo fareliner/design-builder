@@ -49,11 +49,6 @@
       <artifactId>xercesImpl</artifactId>
     </dependency>
     <dependency>
-      <groupId>in.jlibs</groupId>
-      <artifactId>jlibs-xml-crawler</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.github.classgraph</groupId>
       <artifactId>classgraph</artifactId>
     </dependency>

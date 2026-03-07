@@ -24,7 +24,6 @@ import io.fares.maven.plugins.design.builder.flattener.ResourceEntryDependencyRe
 import io.fares.maven.plugins.utils.CollectionUtils;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Resource;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
@@ -34,14 +33,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static java.text.MessageFormat.format;
 
 public final class CatalogFileScanner {
 

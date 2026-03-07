@@ -20,13 +20,11 @@
 package io.fares.maven.plugins.design.builder.flattener;
 
 
-import io.fares.design.builder.JlibsResolverBridge;
 import io.fares.maven.plugins.design.builder.MavenCatalogResolver;
 import io.fares.maven.plugins.design.builder.MavenCatalogResolverFactory;
 import io.fares.maven.plugins.design.builder.scanner.CatalogFileScanner;
 import io.fares.maven.plugins.design.builder.scanner.CatalogFileScannerFactory;
 import io.fares.maven.plugins.design.builder.scanner.SimpleSourceInclusionScanner;
-import jlibs.xml.sax.crawl.XMLCrawler;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
@@ -38,7 +36,6 @@ import org.apache.xerces.util.XMLCatalogResolver;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +78,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
   @Component
   private CatalogFileScannerFactory catalogFileScannerFactory;
+
   /**
    * The entry point to Aether, i.e. the component doing all the work.
    */
@@ -160,6 +158,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
   @Parameter(property = "error.halt", alias = "haltOnError", defaultValue = "false")
   private boolean haltOnError;
+
   /**
    * This flag will cause the content of existing imports to be overridden if
    * it was already flattened. Please make sure you always use -U clean
@@ -236,7 +235,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
       }
 
       // the crawler is our friend as he can flatten path references of
-      // all sorts of XML documents including xsd and wsdl imports
+      // all sorts of XML documents, including xsd and wsdl imports
       if (getLog().isDebugEnabled() || verbose) {
         getLog().info("Following catalogs have been provided: ");
         for (URL catalogFile : catalogFiles) {
@@ -247,9 +246,12 @@ public class FlattenImportPathMojo extends AbstractMojo {
       MavenCatalogResolver resolver = mavenCatalogResolverFactory.newInstance(repositorySystemSession, catalogFiles);
       // r = createXercesResolver(catalogURLs);
 
-      JlibsResolverBridge resolverBridge = new JlibsResolverBridge(resolver);
+      CatalogUriResolver resolverBridge = new CatalogUriResolver(resolver);
+      StreamingXmlFlattener crawler = new StreamingXmlFlattener(
+        resolverBridge,
+        new SimpleNameCrawlerListener(outputDirectory, overrideExistingReference));
 
-      // either flatten file or sources
+      // either flatten a file or sources
       Set<URL> artifacts = new HashSet<>(10);
 
       if (sourceDirectory == null && flattenTarget == null) {
@@ -294,19 +296,12 @@ public class FlattenImportPathMojo extends AbstractMojo {
         try {
           if (getLog().isDebugEnabled() || verbose)
             getLog().info("Flatten file: " + targetFile.toExternalForm());
-          // FIXME do a proper URI check
-          InputSource source = new InputSource(targetFile.toExternalForm());
-          XMLCrawler crawler = new XMLCrawler();
-          crawler.setResolver(resolverBridge);
-          crawler.crawl(source, new SimpleNameCrawlerListener(
-            outputDirectory, overrideExistingReference), null);
+          crawler.crawl(targetFile);
         } catch (Throwable e) {
           errorEncountered.add(e);
           getLog().error("Failed processing " + targetFile, e);
           if (haltOnError)
             throw e;
-        } finally {
-          // FIXME no longer needed? crawler.reset();
         }
       }
 
@@ -329,9 +324,9 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
   @SuppressWarnings("unused")
   private XMLCatalogResolver createXercesResolver(List<URL> catalogsArg)
-    throws IOException, URISyntaxException {
+    throws URISyntaxException {
 
-    if (catalogsArg.size() > 0 && (getLog().isDebugEnabled() || verbose)) {
+    if (!catalogsArg.isEmpty() && ( getLog().isDebugEnabled() || verbose )) {
       getLog().debug("Adding catalogs to resolver: ");
     }
 
@@ -380,12 +375,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
 
   }
 
-
-  /*
-   *
-   * Getters and Setters
-   *
-   */
+  // region Getters and Setters
 
   public MavenProject getProject() {
     return project;
@@ -418,5 +408,7 @@ public class FlattenImportPathMojo extends AbstractMojo {
   public void setMavenCatalogResolverFactory(MavenCatalogResolverFactory mavenCatalogResolverFactory) {
     this.mavenCatalogResolverFactory = mavenCatalogResolverFactory;
   }
+
+  // endregion
 
 }

@@ -35,7 +35,6 @@
     <maven.plugin.version>3.11.0</maven.plugin.version>
     <maven.test.version>3.3.0</maven.test.version>
     <aether.version>1.1.0</aether.version>
-    <jlibs.version>2.2.3</jlibs.version>
     <fast.classpath.scanner.version>4.8.165</fast.classpath.scanner.version>
     <xmlresolver.version>1.2</xmlresolver.version>
     <xerces.version>2.12.2</xerces.version>
@@ -102,12 +101,6 @@
         <groupId>xalan</groupId>
         <artifactId>serializer</artifactId>
         <version>${xalan.version}</version>
-      </dependency>
-      <!-- parsing xml docs -->
-      <dependency>
-        <groupId>in.jlibs</groupId>
-        <artifactId>jlibs-xml-crawler</artifactId>
-        <version>${jlibs.version}</version>
       </dependency>
       <!-- testing dependencies -->
       <dependency>
